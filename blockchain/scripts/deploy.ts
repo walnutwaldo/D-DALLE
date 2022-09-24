@@ -1,12 +1,23 @@
 import {ethers} from "hardhat";
+import fs from 'fs';
 
 async function main() {
-    const KlaytnGreeter = await ethers.getContractFactory("KlaytnGreeter");
-    const klaytnGreeter = await KlaytnGreeter.deploy("Hello, Klaytn!");
+    const signers = await ethers.getSigners();
+    const signer = signers[0];
 
-    await klaytnGreeter.deployed();
+    const factory = await ethers.getContractFactory("DDALLE");
+    const contract = await factory.deploy();
 
-    console.log("KlaytnGreeter deployed to:", klaytnGreeter.address);
+    await contract.connect(signer).deployed();
+
+    const address = contract.address;
+    console.log("DDALLE deployed to:", contract.address);
+    console.log("Owner:", await contract.owner());
+
+    // Update deployment.json to change address to deployed contract address
+    fs.writeFileSync('deployment.json', JSON.stringify({
+        address: address,
+    }, null, 2));
 }
 
 // We recommend this pattern to be able to use async/await everywhere
