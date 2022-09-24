@@ -16,7 +16,7 @@ async function main() {
     const numTasks = await contract.numTasks();
     console.log("Number of tasks:", numTasks.toString());
 
-    for (let i = 0; i < numTasks.toNumber(); i += 1) {
+    for (let i = 0; i < numTasks.toNumber(); i += 10) {
         const page = await contract.getTasks(i);
         console.log(`Page ${i}:`, page);
     }

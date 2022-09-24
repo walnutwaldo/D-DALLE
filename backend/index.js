@@ -13,8 +13,6 @@ const path = require('path');
 const PORT = process.env.PORT || 5000;
 const DOMAIN = "https://ddalle-backend.herokuapp.com";
 
-
-
 const init = async () => {
     const creditsSummary = await dalle.getCredits();
     const totalCreditsLeft = creditsSummary.aggregate_credits;
@@ -30,8 +28,6 @@ const downloadImage = async (url, path) => {
     await fs.writeFile(path, buffer);
     console.log("downloaded:", path);
 }
-
-
 
 const urls_from_prompt = async (prompt) => {
     const generations = (await dalle.generate(prompt)).data;
@@ -69,18 +65,23 @@ const prompt = async (req, res) => {
     res.send(res_data);
 };
 
+const submit = async(req, res) => {
+    const {
+        taskId,
+        uri,
+        prompt,
+        chainId
+    } = req.body;
 
-
-
+    const provider = await getProvider(chainId);
+}
 
 setup().then(() => {
-
     init();
-
     express()
         .use(express.static(path.join(__dirname, 'public')))
         .use(express.json())
         .post('/prompt', prompt)
+        .post('/submit', submit)
         .listen(PORT, () => console.log(`Listening on ${PORT}`))
-
 });

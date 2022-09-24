@@ -97,6 +97,7 @@ contract DDALLE is Ownable, ReentrancyGuard {
         Submission[] storage submissionsForTask = submissions[taskId];
         uint submissionsPerPage = 10;
         uint startIndex = pageNumber * submissionsPerPage;
+        require(startIndex < submissionsForTask.length, "Page does not exist");
         uint endIndex = startIndex + submissionsPerPage;
         if (endIndex > submissionsForTask.length) {
             endIndex = submissionsForTask.length;
@@ -130,6 +131,7 @@ contract DDALLE is Ownable, ReentrancyGuard {
     function getTasks(uint pageNumber) public view returns (Task[] memory results) {
         uint tasksPerPage = 10;
         uint startIndex = pageNumber * tasksPerPage;
+        require(startIndex < tasks.length, "Page does not exist");
         uint endIndex = startIndex + tasksPerPage;
         if (endIndex > tasks.length) {
             endIndex = tasks.length;
