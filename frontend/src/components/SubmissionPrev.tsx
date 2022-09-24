@@ -11,8 +11,10 @@ function SingleSubmission({ submission }: { submission: SubmissionT }) {
 
 function SubmissionPrev({ submissions }: { submissions: SubmissionT[] }) {
     return (
-        <div className="flex flex-row">
-            {submissions.map((submission) => <SingleSubmission submission={submission} />)}
+        <div className="flex shrink overflow-hidden">
+            <div className="flex flex-row">
+                {submissions.map((submission) => <SingleSubmission submission={submission} />)}
+            </div>
         </div>
     );
 }
