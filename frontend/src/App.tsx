@@ -5,6 +5,7 @@ import Bounties from './components/Bounties';
 import Footer from './components/Footer';
 import Web3 from "web3";
 import Web3Context from './contexts/Web3Context';
+import PageContext, {PageType} from "./contexts/PageContext";
 
 function App() {
     const [web3, setWeb3] = React.useState<Web3 | null>(null);
@@ -13,6 +14,7 @@ function App() {
     const [connected, setConnected] = React.useState(false);
     const [address, setAddress] = React.useState("");
     const [networkId, setNetworkId] = React.useState(1);
+    const [page, setPage] = React.useState(PageType.Propose);
 
     return (
         <Web3Context.Provider value={{
@@ -29,11 +31,15 @@ function App() {
             networkId,
             setNetworkId
         }}>
-            <div>
-                <Header/>
-                <Bounties/>
-                <Footer/>
-            </div>
+            <PageContext.Provider value={{
+                page, setPage
+            }}>
+                <div>
+                    <Header/>
+                    <Bounties/>
+                    <Footer/>
+                </div>
+            </PageContext.Provider>
         </Web3Context.Provider>
     );
 }

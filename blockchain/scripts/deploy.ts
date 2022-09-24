@@ -1,6 +1,12 @@
 import {ethers} from "hardhat";
 import fs from 'fs';
 
+const DDALLE_ARTIFACT_PATH = "./artifacts/contracts/DDALLE.Sol/DDALLE.json";
+
+const DDALLE_ABI = JSON.parse(
+    fs.readFileSync(DDALLE_ARTIFACT_PATH, "utf8")
+)["abi"];
+
 async function main() {
     const signers = await ethers.getSigners();
     const signer = signers[0];
@@ -17,6 +23,11 @@ async function main() {
     // Update deployment.json to change address to deployed contract address
     fs.writeFileSync('deployment.json', JSON.stringify({
         address: address,
+    }, null, 2));
+
+    fs.writeFileSync('../frontend/src/constants/DDALLE_DEPLOYMENT.json', JSON.stringify({
+        address: address,
+        abi: DDALLE_ABI
     }, null, 2));
 }
 

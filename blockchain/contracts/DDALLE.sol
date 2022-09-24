@@ -126,4 +126,26 @@ contract DDALLE is Ownable, ReentrancyGuard {
         return submissions[taskId][task.winner];
     }
 
+    function getTasks(uint pageNumber) public view returns (Task[] memory results) {
+        uint tasksPerPage = 10;
+        uint startIndex = pageNumber * tasksPerPage;
+        uint endIndex = startIndex + tasksPerPage;
+        if (endIndex > tasks.length) {
+            endIndex = tasks.length;
+        }
+        results = new Task[](endIndex - startIndex);
+        for (uint i = startIndex; i < endIndex; i++) {
+            results[i - startIndex] = tasks[i];
+        }
+    }
+
+    function numTasks() public view returns (uint) {
+        return tasks.length;
+    }
+
+    function getTask(uint taskId) public view returns (Task memory) {
+        require(taskId < tasks.length, "Task does not exist");
+        return tasks[taskId];
+    }
+
 }

@@ -1,6 +1,7 @@
 import React from 'react';
-import { BountyT } from '../types.tsx/types';
+import {BountyT} from '../types.tsx/types';
 import Bounty from './Bounty';
+import {divide} from "../helpers/bignumber";
 
 
 const toy_data = [
@@ -11,8 +12,14 @@ const toy_data = [
         "deadline": 1664136575,
         "prompt": "Elephants in space",
         "submissions": [
-            { "user": "0x4242424242", "image": "https://openai-labs-public-images-prod.azureedge.net/user-WAOFRt6Xqw1eXVzsqjHrsvbg/generations/generation-CmovJQoXMMTLc6iBGOzyKZSi/image.webp" },
-            { "user": "0x4242424242", "image": "https://openai-labs-public-images-prod.azureedge.net/user-WAOFRt6Xqw1eXVzsqjHrsvbg/generations/generation-CmovJQoXMMTLc6iBGOzyKZSi/image.webp" },
+            {
+                "user": "0x4242424242",
+                "image": "https://openai-labs-public-images-prod.azureedge.net/user-WAOFRt6Xqw1eXVzsqjHrsvbg/generations/generation-CmovJQoXMMTLc6iBGOzyKZSi/image.webp"
+            },
+            {
+                "user": "0x4242424242",
+                "image": "https://openai-labs-public-images-prod.azureedge.net/user-WAOFRt6Xqw1eXVzsqjHrsvbg/generations/generation-CmovJQoXMMTLc6iBGOzyKZSi/image.webp"
+            },
         ],
     },
     {
@@ -22,8 +29,14 @@ const toy_data = [
         "deadline": 1664126575,
         "prompt": "Rainbow cats and goldfish",
         "submissions": [
-            { "user": "0x4242424242", "image": "https://openai-labs-public-images-prod.azureedge.net/user-WAOFRt6Xqw1eXVzsqjHrsvbg/generations/generation-CmovJQoXMMTLc6iBGOzyKZSi/image.webp" },
-            { "user": "0x4242424242", "image": "https://openai-labs-public-images-prod.azureedge.net/user-WAOFRt6Xqw1eXVzsqjHrsvbg/generations/generation-CmovJQoXMMTLc6iBGOzyKZSi/image.webp" },
+            {
+                "user": "0x4242424242",
+                "image": "https://openai-labs-public-images-prod.azureedge.net/user-WAOFRt6Xqw1eXVzsqjHrsvbg/generations/generation-CmovJQoXMMTLc6iBGOzyKZSi/image.webp"
+            },
+            {
+                "user": "0x4242424242",
+                "image": "https://openai-labs-public-images-prod.azureedge.net/user-WAOFRt6Xqw1eXVzsqjHrsvbg/generations/generation-CmovJQoXMMTLc6iBGOzyKZSi/image.webp"
+            },
         ],
     },
 ];
@@ -33,7 +46,17 @@ function Bounties() {
 
     return (
         <div>
-            {data.map((bounty) => <Bounty data={bounty} />)}
+            <div className={"container mx-auto py-4"}>
+                <div >
+                    {
+                        data.map((bounty, idx) => (
+                            <div key={idx}>
+                                <Bounty data={bounty}/>
+                            </div>
+                        ))
+                    }
+                </div>
+            </div>
         </div>
     );
 }
