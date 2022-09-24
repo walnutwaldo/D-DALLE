@@ -4,28 +4,22 @@ import "@nomicfoundation/hardhat-toolbox";
 import dotenv from "dotenv";
 dotenv.config();
 
-const HDWalletProvider = require("truffle-hdwallet-provider-klaytn");
-
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
-
-const testnetHDWallet = new HDWalletProvider(PRIVATE_KEY, "https://your.baobab.en.url:8651");
-console.log(testnetHDWallet);
-
-const mainnetHDWallet = new HDWalletProvider(PRIVATE_KEY, "https://your.cypress.en.url:8651");
-console.log(mainnetHDWallet);
+const PRIVATE_KEY = process.env.PRIVATE_KEY!;
+const CYPRESS_URL = process.env.CYPRESS_URL!;
+const BAOBAB_URL = process.env.BAOBAB_URL!;
 
 const config: HardhatUserConfig = {
   solidity: "0.5.6",
   networks: {
     testnet: {
-      accounts: testnetHDWallet,
-      chainId: 1001, //Klaytn baobab testnet's network id
-      gas: 8500000
+      url: `${BAOBAB_URL}:8651`,
+      gasPrice: 25000000000,
+      accounts: [PRIVATE_KEY],
     },
     mainnet: {
-      accounts: mainnetHDWallet,
-      chainId: 8217, //Klaytn mainnet's network id
-      gas: 8500000,
+      url: `${CYPRESS_URL}:8651`,
+      gasPrice: 25000000000,
+      accounts: [PRIVATE_KEY],
     }
   },
 };

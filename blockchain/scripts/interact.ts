@@ -1,12 +1,14 @@
 import {ethers} from "hardhat";
 
+const CONTRACT_ADDRESS = '0x230a6C4727697CCDfF39c3b599DfAF2D6cb04fe2'
+
 async function main() {
     const KlaytnGreeter = await ethers.getContractFactory("KlaytnGreeter");
-    const klaytnGreeter = await KlaytnGreeter.deploy("Hello, Klaytn!");
+    const klaytnGreeter = KlaytnGreeter.attach(CONTRACT_ADDRESS);
 
-    await klaytnGreeter.deployed();
+    const output = await klaytnGreeter.greet();
 
-    console.log("KlaytnGreeter deployed to:", klaytnGreeter.address);
+    console.log("Output:", output);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
