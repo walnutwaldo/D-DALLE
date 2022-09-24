@@ -1,19 +1,19 @@
 import React from "react";
+import { BountyT } from "../types.tsx/types";
 
-export enum PageType {
-    Propose,
-    Request
+
+export type GlobalData = {
+    bounties: BountyT[],
 }
 
 export type PageContextType = {
-    page: PageType,
-    setPage: (page: PageType) => void
+    globalData: GlobalData
+    setGlobalData: (globalData: GlobalData) => void,
 }
 
 const PageContext = React.createContext<PageContextType>({
-    page: PageType.Propose,
-    setPage: (page: PageType) => {
-    }
+    globalData: { bounties: [] },
+    setGlobalData: (globalData: GlobalData) => { },
 });
 
 export default PageContext;

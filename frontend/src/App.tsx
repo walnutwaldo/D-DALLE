@@ -1,12 +1,48 @@
 import React from 'react';
 import './App.css';
-import Header from './components/Header';
-import Bounties from './components/Bounties';
-import Footer from './components/Footer';
 import Web3 from "web3";
 import Web3Context from './contexts/Web3Context';
-import PageContext, {PageType} from "./contexts/PageContext";
+import PageContext, { GlobalData } from "./contexts/PageContext";
 import Body from './components/Body';
+import { BountyT } from './types.tsx/types';
+import toy_data from './constants/toy_data';
+
+
+
+import {
+    createBrowserRouter,
+    RouterProvider,
+    Route,
+    Link,
+} from "react-router-dom";
+import Bounties from './components/Bounties';
+import Requesting from './components/Requesting';
+import BountyPage from './components/BountyPage';
+
+
+
+
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <Body />,
+        children: [
+            {
+                path: "/",
+                element: <Bounties />,
+            },
+            {
+                path: "request",
+                element: <Requesting />,
+            },
+            {
+                path: "propose/:id",
+                element: <BountyPage />,
+            },
+        ]
+    },
+]);
+
 
 function App() {
     const [web3, setWeb3] = React.useState<Web3 | null>(null);
@@ -15,7 +51,14 @@ function App() {
     const [connected, setConnected] = React.useState(false);
     const [address, setAddress] = React.useState("");
     const [networkId, setNetworkId] = React.useState(1);
-    const [page, setPage] = React.useState(PageType.Propose);
+    const [bounty_data, setBountyData] = React.useState(toy_data as BountyT[]);
+
+    const globalData = {
+        bounties: bounty_data
+    };
+    const setGlobalData = (globalData: GlobalData) => {
+        setBountyData(globalData.bounties);
+    };
 
     return (
         <Web3Context.Provider value={{
@@ -32,14 +75,11 @@ function App() {
             networkId,
             setNetworkId
         }}>
+
             <PageContext.Provider value={{
-                page, setPage
+                globalData, setGlobalData
             }}>
-                <div>
-                    <Header/>
-                    <Body/>
-                    <Footer/>
-                </div>
+                <RouterProvider router={router} />
             </PageContext.Provider>
         </Web3Context.Provider>
     );

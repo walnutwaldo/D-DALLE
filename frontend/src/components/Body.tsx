@@ -1,19 +1,16 @@
-import Bounties from "./Bounties";
-import React from "react";
-import PageContext, {PageType} from "../contexts/PageContext";
-import Requesting from "./Requesting";
+import Footer from "./Footer";
+import Header from "./Header";
+import { Outlet } from "react-router-dom";
+
 
 function Body() {
-    const {page} = React.useContext(PageContext);
-
     return (
-        <div className={"container mx-auto py-4"}>
-            <div className={page === PageType.Propose ? "" : "hidden"}>
-                <Bounties/>
+        <div>
+            <Header />
+            <div className={"container mx-auto py-4"}>
+                <Outlet />
             </div>
-            <div className={page === PageType.Request ? "" : "hidden"}>
-                <Requesting/>
-            </div>
+            <Footer />
         </div>
     )
 }
