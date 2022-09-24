@@ -3,7 +3,7 @@ let dalle;
 
 const setup = async () => {
     const { Dalle } = await import("dalle-node");
-    dalle = new Dalle("sess-i8tCsrjc3qVcqoBGOLMV1q0wYYfNSw4NpRWIGHjL"); // Bearer Token 
+    dalle = new Dalle("sess-i8tCsrjc3qVcqoBGOLMV1q0wYYfNSw4NpRWIGHjL"); // Bearer Token TODO move to .env
 };
 
 const fetch = require("node-fetch-commonjs");
@@ -11,6 +11,7 @@ const fs = require('fs').promises;
 const express = require('express');
 const path = require('path');
 const PORT = process.env.PORT || 5000;
+const DOMAIN = "https://ddalle-backend.herokuapp.com";
 
 
 
@@ -32,8 +33,9 @@ const downloadImage = async (url, path) => {
 
 
 
-const run_prompt = async (prompt) => {
-    const generations = await dalle.generate("a cat driving a car");
+const urls_from_prompt = async (prompt) => {
+    const generations = (await dalle.generate(prompt)).data;
+    console.log("generations:", generations);
     /*
 [
   {
@@ -50,16 +52,20 @@ const run_prompt = async (prompt) => {
   },
     */
     // download all images to local folder
-    generations.forEach(generation => {
+    await Promise.all(generations.map(generation => {
         const url = generation.generation.image_path;
         // download image from url
-        downloadImage(url, "public/" + generation.id + ".jpg")
-    });
+        return downloadImage(url, "public/" + generation.id + ".jpg");
+    }));
+    // return list of ddalle urls
+    const urls = generations.map(g => `${DOMAIN}/${g.id}.jpg`);
+    return urls;
 }
 
-const prompt = (req, res) => {
-    console.log("prompt:", req.body);
-    const res_data = { "success": true, "data": req.body };
+const prompt = async (req, res) => {
+    console.log("request:", req.body);
+    const prompt = req.body.prompt;
+    const res_data = { success: true, urls: await urls_from_prompt(prompt) };
     res.send(res_data);
 };
 
@@ -70,8 +76,6 @@ const prompt = (req, res) => {
 setup().then(() => {
 
     init();
-    url = "https://openai-labs-public-images-prod.azureedge.net/user-WAOFRt6Xqw1eXVzsqjHrsvbg/generations/generation-CmovJQoXMMTLc6iBGOzyKZSi/image.webp";
-    downloadImage(url, "public/test.jpg");
 
     express()
         .use(express.static(path.join(__dirname, 'public')))
