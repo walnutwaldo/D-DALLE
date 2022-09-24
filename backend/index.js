@@ -27,6 +27,7 @@ const downloadImage = async (url, path) => {
     const arrayBuffer = await blob.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     await fs.writeFile(path, buffer);
+    console.log("downloaded:", path);
 }
 
 
@@ -52,7 +53,7 @@ const run_prompt = async (prompt) => {
     generations.forEach(generation => {
         const url = generation.generation.image_path;
         // download image from url
-        downloadImage(url, "images/" + generation.id + ".jpg")
+        downloadImage(url, "public/" + generation.id + ".jpg")
     });
 }
 
@@ -70,7 +71,7 @@ setup().then(() => {
 
     init();
     url = "https://openai-labs-public-images-prod.azureedge.net/user-WAOFRt6Xqw1eXVzsqjHrsvbg/generations/generation-CmovJQoXMMTLc6iBGOzyKZSi/image.webp";
-    downloadImage(url, "test.jpg");
+    downloadImage(url, "public/test.jpg");
 
     express()
         .use(express.static(path.join(__dirname, 'public')))
