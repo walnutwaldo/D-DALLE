@@ -9,6 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.1"
+    "dalle-node": "^1.0.7",
+    "express": "^4.18.1",
+    "node-fetch": "^3.2.10",
+    "node-fetch-commonjs": "^3.2.4"
   }
 }
