@@ -109,14 +109,17 @@ function ConnectWallet() {
             {
                 !connected ? <button
                     className={
-                        "bg-blue-500 p-2 rounded-md text-lg"
+                        "bg-blue-500 px-2 py-1 rounded-md hover:bg-blue-400 transition"
                     }
                     onClick={connectWallet}
                 >
                     Connect Wallet
                 </button> : (
                     <div className={"flex flex-row items-baseline"}>
-                        <div className={"font-mono text-sm p-1 bg-slate-900 rounded-md"}>
+                        <div className={"font-mono text-sm p-1 bg-slate-500 rounded-md mr-1"}>
+                            {getChainData(chainId).name}
+                        </div>
+                        <div className={"font-mono text-sm p-1 bg-slate-500 rounded-md"}>
                             {addressShort}
                         </div>
                         <button className={

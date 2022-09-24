@@ -36,6 +36,7 @@ contract DDALLE is Ownable, ReentrancyGuard {
     function makeTask(string memory description, uint256 duration) public payable nonReentrant {
         uint256 bounty = msg.value;
         require(bounty > 0, "Bounty must be greater than 0");
+        require(duration > 0, "Duration must be greater than 0");
 
         Task memory newTask = Task(
             tasks.length,

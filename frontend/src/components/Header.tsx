@@ -16,7 +16,7 @@ function Header() {
     return (
         <header className='bg-slate-800 text-white py-2'>
             <div className={"h-96 flex flex-col text-center container mx-auto"}>
-                <div className="flex flex-row justify-end align-baseline gap-4">
+                <div className="flex flex-row justify-end items-baseline gap-4">
                     <button className={"p-2 text-gray-200 hover:text-white"} onClick={togglePage}>
                         {
                             page === PageType.Propose ?

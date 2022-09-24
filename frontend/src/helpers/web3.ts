@@ -1,37 +1,50 @@
-import { KIP7_CONTRACT } from '../constants'
-import { apiGetGasPriceKlaytn, apiGetGasPrices, getChainData } from './utilities'
-import {ethers} from "ethers";
+import {KIP7_CONTRACT} from '../constants'
+import {apiGetGasPriceKlaytn, apiGetGasPrices, getChainData} from './utilities'
+import {BigNumber, ethers} from "ethers";
+
+const DDALLE_DEPLOYMENT = require('../constants/DDALLE_DEPLOYMENT.json');
 
 export function getKIP7Contract(web3: any, contractAddress: any) {
-    const tokenContract = new ethers.Contract(contractAddress, KIP7_CONTRACT.abi);
+    const tokenContract = new web3.eth.Contract(
+        KIP7_CONTRACT.abi,
+        contractAddress
+    );
     return tokenContract;
 }
 
+export function getDDALLEContract(web3: any) {
+    const contract = new web3.eth.Contract(
+        DDALLE_DEPLOYMENT.abi,
+        DDALLE_DEPLOYMENT.address
+    );
+    return contract;
+}
+
 export function callBalanceOf(address: string, chainId: number, contractAddress: string, web3: any) {
-    return new Promise(async(resolve, reject) => {
-        try{
+    return new Promise(async (resolve, reject) => {
+        try {
             const contract = getKIP7Contract(web3, contractAddress)
 
             await contract.methods
-            .balanceOf(address)
-            .call(
-                { from: '0x0000000000000000000000000000000000000000' },
-                (err: any, data: any) => {
-                if (err) {
-                    console.log('err', err)
-                    reject(err)
-                }
-                    resolve(data)
-                }
-            )
-        } catch(err) {
+                .balanceOf(address)
+                .call(
+                    {from: '0x0000000000000000000000000000000000000000'},
+                    (err: any, data: any) => {
+                        if (err) {
+                            console.log('err', err)
+                            reject(err)
+                        }
+                        resolve(data)
+                    }
+                )
+        } catch (err) {
             reject(err)
         }
     })
 }
 
 export function callTransfer(address: string, chainId: number, contractAddress: string, web3: any) {
-    return new Promise(async(resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
             const contract = getKIP7Contract(web3, contractAddress)
             const chain = getChainData(chainId).chain
@@ -40,15 +53,48 @@ export function callTransfer(address: string, chainId: number, contractAddress: 
                 ? await contract.methods.transfer(address, '1').estimateGas({from: address})
                 : undefined;
             await contract.methods
-            .transfer(address, '1')
-            .send({ from: address, gas: gas, gasPrice: gasPrice}, (err: any, data: any) => {
-                if (err) {
-                    reject(err)
-                }
-                resolve(data)
-            })
-        } catch(err) {
+                .transfer(address, '1')
+                .send({from: address, gas: gas, gasPrice: gasPrice}, (err: any, data: any) => {
+                    if (err) {
+                        reject(err)
+                    }
+                    resolve(data)
+                })
+        } catch (err) {
             reject(err)
         }
     })
+}
+
+export function callMakeTask(
+    address: string,
+    chainId: number,
+    description: string,
+    duration: number,
+    price: BigNumber,
+    web3: any
+) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const contract = getDDALLEContract(web3);
+            const chain = getChainData(chainId).chain;
+            const gasPrice = chain === 'klaytn' ? await apiGetGasPriceKlaytn(chainId) : undefined;
+            const gas = chain === 'klaytn'
+                ? await contract.methods.makeTask(description, duration).estimateGas({from: address})
+                : undefined;
+            await contract.methods
+                .makeTask(description, duration)
+                .send(
+                    {from: address, gas: gas, gasPrice: gasPrice, value: price},
+                    (err: any, data: any) => {
+                        if (err) {
+                            reject(err)
+                        }
+                        resolve(data)
+                    }
+                )
+        } catch (err) {
+            reject(err)
+        }
+    });
 }
