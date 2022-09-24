@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import Web3 from "web3";
 import Web3Context from './contexts/Web3Context';
 import PageContext, {PageType} from "./contexts/PageContext";
+import Body from './components/Body';
 
 function App() {
     const [web3, setWeb3] = React.useState<Web3 | null>(null);
@@ -36,7 +37,7 @@ function App() {
             }}>
                 <div>
                     <Header/>
-                    <Bounties/>
+                    <Body/>
                     <Footer/>
                 </div>
             </PageContext.Provider>

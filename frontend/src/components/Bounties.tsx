@@ -46,17 +46,13 @@ function Bounties() {
 
     return (
         <div>
-            <div className={"container mx-auto py-4"}>
-                <div >
-                    {
-                        data.map((bounty, idx) => (
-                            <div key={idx}>
-                                <Bounty data={bounty}/>
-                            </div>
-                        ))
-                    }
-                </div>
-            </div>
+            {
+                data.map((bounty, idx) => (
+                    <div key={idx}>
+                        <Bounty data={bounty}/>
+                    </div>
+                ))
+            }
         </div>
     );
 }

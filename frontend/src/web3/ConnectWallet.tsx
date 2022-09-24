@@ -49,7 +49,7 @@ function ConnectWallet() {
         });
         provider.on("chainChanged", async (chainId: any) => {
             const networkId = await web3?.eth.net.getId();
-            chainId = isHexString(chainId)? Number(chainId).toString():chainId;
+            chainId = isHexString(chainId) ? Number(chainId).toString() : chainId;
             setChainId(Number(chainId));
             setNetworkId(networkId!);
         });
@@ -102,20 +102,31 @@ function ConnectWallet() {
         }
     }, []);
 
+    const addressShort = address ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : "";
+
     return (
         <div>
-            {!connected ? <button
-                className={
-                    "bg-blue-500 p-2 rounded-md text-lg mt-2"
-                }
-                onClick={connectWallet}
-            >
-                Connect Wallet
-            </button> : <button className={
-                "text-gray-200 p-2 text-md mt-2 hover:text-white"
-            } onClick={disconnect}>
-                Disconnect
-            </button>}
+            {
+                !connected ? <button
+                    className={
+                        "bg-blue-500 p-2 rounded-md text-lg"
+                    }
+                    onClick={connectWallet}
+                >
+                    Connect Wallet
+                </button> : (
+                    <div className={"flex flex-row items-baseline"}>
+                        <div className={"font-mono text-sm p-1 bg-slate-900 rounded-md"}>
+                            {addressShort}
+                        </div>
+                        <button className={
+                            "text-gray-200 p-2 text-md hover:text-white"
+                        } onClick={disconnect}>
+                            Disconnect
+                        </button>
+                    </div>
+                )
+            }
         </div>
     );
 }
