@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 5000
 
 
 const prompt = (req, res) => {
-    console.log("prompt :", req.body);
+    console.log("prompt:", req.body);
     const res_data = { "success": true, "data": req.body };
     res.send(res_data);
 };
