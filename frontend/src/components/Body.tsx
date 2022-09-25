@@ -5,9 +5,9 @@ import { Outlet } from "react-router-dom";
 
 function Body() {
     return (
-        <div>
+        <div className={"flex flex-col min-h-full"}>
             <Header />
-            <div className={"bg-stone-100"}>
+            <div className={"bg-stone-100 flex-1"}>
                 <div className={"container mx-auto py-4 "}>
                     <Outlet />
                 </div>

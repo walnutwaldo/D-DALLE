@@ -1,21 +1,16 @@
 import React from 'react';
 import GlobalDataContext from '../contexts/GlobalDataContext';
 import Bounty from './Bounty';
-import {useNavigate} from "react-router-dom";
 
 function Bounties() {
     const {globalData} = React.useContext(GlobalDataContext);
 
-    const navigate = useNavigate();
-    const sel_bounty = (id: string) => {
-        navigate("/propose/" + id);
-    };
     return (
         <div>
             <div className={
-                "p-2 bg-slate-700 m-4 text-white rounded-lg gap-4"
+                "p-2 bg-slate-700 m-4 text-white rounded-lg"
             }>
-                <div className="flex flex-row">
+                <div className="flex flex-row gap-4">
                     <div className="w-64 text-center font-bold">
                         Bounty
                     </div>
@@ -29,8 +24,8 @@ function Bounties() {
             </div>
             {
                 globalData.bounties.map(bounty => (
-                    <div key={bounty.id} onClick={() => sel_bounty(bounty.id)} className={
-                        "p-2 bg-gray-200 m-4 rounded-lg cursor-pointer hover:bg-gray-300"
+                    <div key={bounty.id} className={
+                        "p-2 m-4"
                     }>
                         <Bounty data={bounty}/>
                     </div>
