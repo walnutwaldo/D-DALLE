@@ -34,12 +34,14 @@ function SubmitSection({ promptReq }: { promptReq: string }) {
         console.log("Propose: ", selImg);
     };
 
+    const style_half = "w-1/2 mx-auto flex flex-col gap-2";
+
     return (
         <div className="submit-section mt-6 bg-gray-200 pb-5">
             <div className="bg-gray-700 text-2xl text-white font-medium text-center py-7">
                 Submit Your Prompt
             </div>
-            <div className={"w-1/2 mx-auto flex flex-col gap-2"}>
+            <div className={style_half}>
                 <div className="pt-5">
                     <label className={"font-semibold"}>Prompt</label>
                     <input
@@ -59,27 +61,33 @@ function SubmitSection({ promptReq }: { promptReq: string }) {
                 >
                     Generate Images (takes ~20sec)
                 </button>
-                <div className={"flex flex-col " + (showResults ? "" : "hidden")}>
-                    {results.length === 0 && <div className="pt-2 pb-4">
-                        <LinearProgress />
-                    </div>}
-                    {results.length > 0 && <div>
-                        Results...
-                    </div>
-                    }
-                    <button
-                        className={
-                            "enabled:bg-blue-500 disabled:bg-gray-400 px-2 py-1 rounded-md text-white transition" +
-                            " enabled:hover:bg-blue-400 disabled:cursor-default "
-                        }
-                        disabled={!readyToSubmit}
-                        onClick={() => propose()}
-                    >Propose Image</button>
-                </div>
+                {showResults && results.length === 0 && <div className="pt-2 pb-4">
+                    <LinearProgress />
+                </div>}
             </div>
+            <div className={"flex flex-col px-12 lg:px-36 xl:px-12"}>
 
-
-        </div>
+                {showResults && results.length > 0 && <div className="flex flex-row flex-wrap justify-around">
+                    {results.map((url, i) => (
+                        <div key={i} className="flex flex-col w-64 bg-gray-500 my-5" >
+                            <img src={url} alt="submission" />
+                        </div>
+                    ))}
+                </div>
+                }
+            </div>
+            {showResults && results.length > 0 && <div className={style_half}>
+                <button
+                    className={
+                        "enabled:bg-blue-500 disabled:bg-gray-400 px-2 py-1 rounded-md text-white transition" +
+                        " enabled:hover:bg-blue-400 disabled:cursor-default "
+                    }
+                    disabled={!readyToSubmit}
+                    onClick={() => propose()}
+                >Propose Image</button>
+            </div>
+            }
+        </div >
     );
 }
 
