@@ -123,7 +123,7 @@ contract DDALLE is Ownable, ReentrancyGuard {
         Submission[] storage submissionsForTask = submissions[taskId];
         uint cnt = submissionsForTask.length;
         require(submissionId < cnt, "Submission does not exist");
-        return submissionsForTask[cnt - 1 - submissionId];
+        return submissionsForTask[submissionId];
     }
 
     function deadlinePassed(uint taskId) public view {
@@ -161,7 +161,7 @@ contract DDALLE is Ownable, ReentrancyGuard {
     function getTask(uint taskId) public view returns (Task memory) {
         uint cnt = tasks.length;
         require(taskId < cnt, "Task does not exist");
-        return tasks[cnt - 1 - taskId];
+        return tasks[taskId];
     }
 
 }

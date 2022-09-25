@@ -46,7 +46,7 @@ function Header() {
                     <ConnectWallet/>
                 </div>
                 <div className={"my-auto"}>
-                    <h1 className='text-8xl text-center'>D-DALLE</h1>
+                    <h1 className='text-8xl text-center serif'>D-DALLE</h1>
                     <h3 className='text-xl text-center'>Decentralized AI image generation.</h3>
                 </div>
             </div>
