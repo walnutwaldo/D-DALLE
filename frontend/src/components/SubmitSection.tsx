@@ -6,6 +6,7 @@ import { callSubmit } from "../helpers/web3";
 import { BountyT } from "../types.tsx/types";
 import Web3Context from "../contexts/Web3Context";
 import { getChainData } from "../helpers/utilities";
+import SubmissionContext from "../contexts/SubmissionContext";
 
 
 function SubmitSection({ data }: { data: BountyT }) {
@@ -15,6 +16,7 @@ function SubmitSection({ data }: { data: BountyT }) {
     const [selImg, setSelImg] = React.useState(-1);
     const [proposing, setProposing] = React.useState(false);
     const { connected, web3, address, networkId, chainId, connectWallet, provider } = useContext(Web3Context);
+    const { refresh: refreshSubmissions } = useContext(SubmissionContext);
 
     const showResults = loading || results.length > 0;
     const readyToSubmit = selImg !== -1;
@@ -58,7 +60,7 @@ function SubmitSection({ data }: { data: BountyT }) {
                 console.log("Txn:", txn);
                 const receipt = await txn.wait();
                 console.log("Receipt: ", receipt);
-            }).catch((e) => {}).then(() => {
+            }).catch((e) => { }).then(() => {
                 setProposing(false);
             });
         } else {
@@ -85,11 +87,18 @@ function SubmitSection({ data }: { data: BountyT }) {
                 } else {
                     alert("Error: " + res.error);
                 }
-            }).catch((e) => {}).then(() => {
+            }).catch((e) => { }).then(() => {
                 setProposing(false);
             });
         }
     };
+
+    React.useEffect(() => {
+        if (readyToSubmit && !proposing) {
+            // fetch submission again to get new image
+            refreshSubmissions();
+        }
+    }, [proposing, refreshSubmissions]);
 
     const style_half = "w-1/2 mx-auto flex flex-col gap-2";
 

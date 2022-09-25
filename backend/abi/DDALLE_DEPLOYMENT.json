@@ -1,7 +1,7 @@
 {
   "address": {
-    "1001": "0xdC1f49660B9ad5a4d1cB3B73808B6E479E80d561",
-    "8217": "0xB9d33370D1c77E1CA45ffc546222ECF8bdff269C",
+    "1001": "0xdc6991F4Db68a67E90A7E42ce362a4F8DF3305c5",
+    "8217": "0xc798B2A3ad8c75558F038008aAF781951BBbE8B6",
     "31337": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
   },
   "abi": [
@@ -461,6 +461,19 @@
     },
     {
       "inputs": [],
+      "name": "BASE_BASE_URI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "PAGE_SIZE",
       "outputs": [
         {
@@ -523,6 +536,25 @@
           "internalType": "address",
           "name": "",
           "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getImageURL",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
         }
       ],
       "stateMutability": "view",
@@ -858,7 +890,20 @@
       "inputs": [
         {
           "internalType": "string",
-          "name": "uri",
+          "name": "baseBaseURI",
+          "type": "string"
+        }
+      ],
+      "name": "setBaseBaseURI",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "url",
           "type": "string"
         },
         {
@@ -980,7 +1025,7 @@
           "type": "uint256"
         }
       ],
-      "name": "uris",
+      "name": "urls",
       "outputs": [
         {
           "internalType": "string",
