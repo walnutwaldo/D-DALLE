@@ -6,6 +6,9 @@ import Prompt from "./Prompt";
 import Countdown from "./Countdown";
 import { SubmissionT } from "../types.tsx/types";
 import SubmitSection from "./SubmitSection";
+import SubmissionProvider from "../contexts/SubmissionProvider";
+import SubmissionContext from "../contexts/SubmissionContext";
+import SingleSubmission from "./SingleSubmission";
 
 
 function BountyPrice({ price }: { price: BigNumber }) {
@@ -18,20 +21,13 @@ function BountyPrice({ price }: { price: BigNumber }) {
 }
 
 
-function SingleSubmission({ submission }: { submission: SubmissionT }) {
-    return (
-        <div className="flex flex-col w-64 bg-gray-500">
-            <img src={submission.uri} alt="submission" />
-        </div>
-    );
-}
-
 function BountyPage() {
     const { id } = useParams();
 
     const { globalData } = React.useContext(GlobalDataContext);
     const bounty = globalData.bounties.filter(b => b.id === id)[0];
-    return bounty && (
+    if (!id || !bounty) return <div>Not found: {id}</div>;
+    return (
         <div>
             <div className="pt-12" />
             <Prompt prompt={bounty.description} />
@@ -45,11 +41,22 @@ function BountyPage() {
                 <SubmitSection data={bounty} />
             </div>
 
-            <div className="mt-12 bg-gray-200 flex flex-row flex-wrap justify-around">
-                {/*bounty.submissions.map(sub => <SingleSubmission key={sub.image} submission={sub} />)*/}
+            <div className="mt-12 bg-gray-200 ">
+                <div className="bg-gray-700 text-2xl text-white font-medium text-center py-7">
+                    Previous Submissions
+                </div>
+                <div className="mt-8 flex flex-row flex-wrap justify-around">
+                    <SubmissionProvider id={id}>
+                        <SubmissionContext.Consumer>
+                            {({ submissions }) => submissions.map(
+                                sub => <SingleSubmission key={sub.submissionId} submission={sub} />
+                            )}
+                        </SubmissionContext.Consumer>
+                    </SubmissionProvider>
+                </div>
             </div>
         </div>
-    )
+    );
 };
 
 export default BountyPage;
