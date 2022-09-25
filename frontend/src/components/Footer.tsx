@@ -2,7 +2,7 @@ import React from 'react';
 
 function Footer() {
     return (
-        <footer className='bg-gray-700 text-white h-12 grid content-center mt-36'>
+        <footer className='bg-slate-900 text-white h-12 grid content-center'>
             <div className='text-md text-center'>Built for HackBoston 2022</div>
         </footer>
     );

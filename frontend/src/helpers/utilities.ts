@@ -118,6 +118,7 @@ export function getChainData(chainId: number) {
             chain_id: 0,
             native_currency: {
                 name: "Unknown",
+                symbol: "UKNOWN",
             }
         }
     }

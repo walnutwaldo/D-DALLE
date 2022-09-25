@@ -103,3 +103,63 @@ export function callMakeTask(
         }
     });
 }
+
+export function callNumTasks(
+    web3: any,
+) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const contract = getDDALLEContract(web3);
+            const tasks = await contract.methods.numTasks().call();
+            resolve(tasks);
+        } catch (err) {
+            reject(err)
+        }
+    });
+}
+
+export function callGetTasks(
+    pageNumber: number,
+    web3: any,
+) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const contract = getDDALLEContract(web3);
+            const tasks = await contract.methods.getTasks(pageNumber).call();
+            resolve(tasks);
+        } catch (err) {
+            reject(err)
+        }
+    });
+}
+
+export function callNumSubmissions(
+    taskId: any,
+    web3: any,
+) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const contract = getDDALLEContract(web3);
+            const tasks = await contract.methods.numSubmissions(taskId).call();
+            resolve(tasks);
+        } catch (err) {
+            reject(err)
+        }
+    });
+}
+
+export function callGetSubmissions(
+    taskId: any,
+    pageNumber: number,
+    web3: any,
+) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const contract = getDDALLEContract(web3);
+            const submissions = await contract.methods.getSubmissions(taskId, pageNumber).call();
+            resolve(submissions);
+        } catch (err) {
+            reject(err)
+        }
+    });
+}

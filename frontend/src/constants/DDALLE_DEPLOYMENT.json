@@ -1,7 +1,7 @@
 {
   "address": {
-    "1001": "0xae796864ED8196b28e4431Cf7424EccF42C0fB60",
-    "31337": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6"
+    "1001": "0xc5582220F847edBdaBF51413a0B517CCF9FA19Ad",
+    "31337": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
   },
   "abi": [
     {
@@ -91,6 +91,19 @@
       ],
       "name": "WinnerAssigned",
       "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "PAGE_SIZE",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     },
     {
       "inputs": [
@@ -399,6 +412,25 @@
       "name": "makeTask",
       "outputs": [],
       "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "taskId",
+          "type": "uint256"
+        }
+      ],
+      "name": "numSubmissions",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {

@@ -1,16 +1,21 @@
+import {BigNumber} from "ethers";
 
 type SubmissionT = {
-    user: string;
-    image: string;
+    submissionId: string;
+    uri: string;
+    prompt: string; // No guarantee this was the actual prompt
+    submitter: string;
+    submissionTime: number;
 };
 
 type BountyT = {
     id: string;
-    user: string;
-    bounty: number;
+    owner: string;
+    bounty: BigNumber;
     deadline: number;
-    prompt: string;
-    submissions: SubmissionT[];
+    description: string;
+    completed: boolean;
+    winner: string;
 };
 
 export type { SubmissionT, BountyT };
