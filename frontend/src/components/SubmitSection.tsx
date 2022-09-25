@@ -14,7 +14,7 @@ function SubmitSection({data}: { data: BountyT }) {
     const [results, setResults] = React.useState([] as string[]);
     const [selImg, setSelImg] = React.useState(-1);
     const [proposing, setProposing] = React.useState(false);
-    const {connected, web3, address, networkId, chainId, connectWallet} = useContext(Web3Context);
+    const {connected, web3, address, networkId, chainId, connectWallet, provider} = useContext(Web3Context);
 
     const showResults = loading || results.length > 0;
     const readyToSubmit = selImg !== -1;
@@ -53,9 +53,9 @@ function SubmitSection({data}: { data: BountyT }) {
                 prompt,
                 web3
             ).then(async (res) => {
-                const txn = await (new ethers.providers.JsonRpcProvider(getChainData(chainId).rpc_url)).getTransaction(
-                    res as string
-                );
+                console.log("Txn hash:", res);
+                const txn = await (new ethers.providers.Web3Provider(provider)).getTransaction(res as string);
+                console.log("Txn:", txn);
                 const receipt = await txn.wait();
                 console.log("Receipt: ", receipt);
             }).catch().then(() => {
@@ -146,10 +146,11 @@ function SubmitSection({data}: { data: BountyT }) {
                         "enabled:bg-blue-500 disabled:bg-gray-400 px-2 py-1 rounded-md text-white transition" +
                         " enabled:hover:bg-blue-400 disabled:cursor-default "
                     }
-                    disabled={!readyToSubmit || proposing}
+                    disabled={!readyToSubmit}
                     onClick={() => propose()}
                 >
-                    {proposing ? "Proposing ..." : "Propose Image" + (!connected ? " Anyway" : "")}
+                    {/*{proposing ? "Proposing ..." : "Propose Image" + (!connected ? " Anyway" : "")}*/}
+                    {"Propose Image" + (!connected ? " Anyway" : "")}
                 </button>
             </div>
             }
