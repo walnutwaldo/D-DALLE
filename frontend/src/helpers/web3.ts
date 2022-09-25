@@ -2,7 +2,7 @@ import { KIP7_CONTRACT } from '../constants'
 import { apiGetGasPriceKlaytn, apiGetGasPrices, getChainData } from './utilities'
 import { BigNumber, ethers } from "ethers";
 
-const DDALLE_DEPLOYMENT = require('../constants/DDALLE_DEPLOYMENT.json');
+export const DDALLE_DEPLOYMENT = require('../constants/DDALLE_DEPLOYMENT.json');
 
 export function getKIP7Contract(web3: any, contractAddress: any) {
     const tokenContract = new web3.eth.Contract(

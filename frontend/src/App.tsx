@@ -12,12 +12,12 @@ import {
 import Bounties from './components/Bounties';
 import Requesting from './components/Requesting';
 import BountyPage from './components/BountyPage';
-import {callGetTasks, callNumTasks} from "./helpers/web3";
+import {callGetTasks, callNumTasks, DDALLE_DEPLOYMENT} from "./helpers/web3";
 import {BigNumber} from "ethers";
 import GlobalDataContext, {GlobalData} from "./contexts/GlobalDataContext";
 import {getChainData} from "./helpers/utilities";
 import {DEFAULT_CHAIN_ID} from "./helpers/chains";
-import {isFunctionOrConstructorTypeNode} from 'typescript';
+
 import Web3Modal from "@klaytn/web3modal";
 import {isHexString} from "ethereumjs-util";
 import {KaikasWeb3Provider} from "@klaytn/kaikas-web3-provider";
@@ -49,6 +49,8 @@ const PROVIDER_OPTIONS = {
         package: KaikasWeb3Provider,
     }
 }
+
+let switchingChains = false;
 
 function Web3ContextProvider(props: any) {
     const {children} = props;
@@ -101,13 +103,13 @@ function Web3ContextProvider(props: any) {
                 setAddress(accounts[0]);
             });
             provider.on("chainChanged", async (chainId: any) => {
-                const networkId = await web3?.eth.net.getId();
                 chainId = isHexString(chainId) ? Number(chainId).toString() : chainId;
                 setChainId(Number(chainId));
+                const networkId = chainId;
                 setNetworkId(networkId!);
             });
             provider.on("networkChanged", async (networkId: any) => {
-                const chainId = await web3?.eth.getChainId();
+                const chainId = networkId;
                 setChainId(Number(chainId));
                 setNetworkId(networkId);
             });
@@ -127,10 +129,8 @@ function Web3ContextProvider(props: any) {
             setWeb3(web3);
 
             const accounts = await web3.eth.getAccounts();
-            console.log("Accounts: ", accounts);
 
             const address = accounts[0];
-            console.log("Address: ", address);
             setAddress(address);
 
             const networkId = await web3.eth.net.getId();
@@ -138,8 +138,47 @@ function Web3ContextProvider(props: any) {
 
             const chainId = await web3.eth.getChainId();
             setChainId(Number(chainId));
+            console.log('connecting to chainId:', chainId);
 
             setConnected(true);
+
+            if (!DDALLE_DEPLOYMENT.address[Number(chainId)] && !switchingChains) {
+                switchingChains = true;
+                const newChain = '0x' + DEFAULT_CHAIN_ID.toString(16);
+                let req;
+                try {
+                    req = await provider.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{chainId: newChain}],
+                    });
+                } catch (switchError: any) {
+                    // This error code indicates that the chain has not been added to MetaMask.
+                    if (switchError.code === 4902) {
+                        try {
+                            const chainData = getChainData(DEFAULT_CHAIN_ID);
+                            req = await provider.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [
+                                    {
+                                        chainId: newChain,
+                                        chainName: chainData.name,
+                                        nativeCurrency: {
+                                            name: chainData.native_currency.name,
+                                            symbol: chainData.native_currency.symbol,
+                                            decimals: 18
+                                        },
+                                        rpcUrls: [chainData.rpc_url]
+                                    }
+                                ],
+                            });
+                        } catch (addError) {
+                            // handle "add" error
+                        }
+                    }
+                }
+                connectWallet().then();
+                switchingChains = false;
+            }
         },
         [setProvider, subscribeProvider, setWeb3, setAddress, setNetworkId, setChainId, setConnected]
     );
@@ -195,8 +234,6 @@ function GlobalDataProvider(props: any) {
         const currBountyCnt = ++bountyRefreshCnt;
         callNumTasks(web3, chainId)
             .then((num_tasks: any) => {
-                console.log("num_tasks: " + num_tasks);
-                console.log(BigNumber.from(num_tasks).gt(0));
                 if (BigNumber.from(num_tasks).gt(0)) {
                     return callGetTasks(0, web3, chainId);
                 } else {
