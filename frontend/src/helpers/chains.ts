@@ -292,6 +292,6 @@ const supportedChains = [
     }
 ];
 
-export const DEFAULT_CHAIN_ID = 1001;
+export const DEFAULT_CHAIN_ID = 8217;
 
 export default supportedChains;
