@@ -11,10 +11,13 @@ const rpc_urls = {
 
 const getSigner = async (chainId) => {
     const url = rpc_urls[chainId];
-    console.log("url", url);
+    // console.log("url", url);
     const provider = new ethers.providers.JsonRpcProvider(url);
+    // console.log("Waiting for provider ...");
+    await provider.ready;
+    // console.log("READY");
     const result = await provider.send('eth_chainId', []);
-    console.log("provider chain Id:", result);
+    // console.log("provider chain id:", result);
     return new Wallet(process.env.SIGNER_KEY, provider);
 }
 
