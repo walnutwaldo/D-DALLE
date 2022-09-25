@@ -27,6 +27,10 @@ function BountyPage() {
     const { globalData } = React.useContext(GlobalDataContext);
     const bounty = globalData.bounties.filter(b => b.id === id)[0];
     if (!id || !bounty) return <div>Not found: {id}</div>;
+
+    const isOver = (new Date().getTime() / 1000) > bounty.deadline;
+    const isOwner = true;
+
     return (
         <div>
             <div className="pt-12" />
@@ -37,13 +41,20 @@ function BountyPage() {
                 <Countdown data={bounty} classes="text-4xl" />
             </div>
 
-            <div>
+            {!isOver && <div>
                 <SubmitSection data={bounty} />
-            </div>
+            </div>}
 
             <div className="mt-12 bg-gray-200 ">
-                <div className="bg-gray-700 text-2xl text-white font-medium text-center py-7">
-                    Previous Submissions
+                <div className="bg-gray-700 py-7">
+                    <div className="text-2xl text-white font-medium text-center ">
+                        {isOver && isOwner ? "Time to choose a winner" : "Previous submissions"}
+                    </div>
+                    {(isOver || isOwner) && <div className="text-lg text-white text-center mt-2">
+                        {isOver && !isOwner && "Waiting for the owner to choose a winner."}
+                        {isOver && isOwner && "Select which image you want to award the bounty to."}
+                        {!isOver && isOwner && "You can choose a winner when the time is up."}
+                    </div>}
                 </div>
                 <div className="mt-8 flex flex-row flex-wrap justify-around">
                     <SubmissionProvider id={id}>
