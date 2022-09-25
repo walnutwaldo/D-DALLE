@@ -48,16 +48,16 @@ function SubmissionProvider({ children, submissionsContract }: { children: any, 
     }, [refresh]);
 
     // timer to refresh every 5 seconds
-    useEffect(() => {
-        const timer = setInterval(() => {
-            refresh();
-        }, 5000);
-        return () => clearInterval(timer);
-    }, [refresh]);
+    // useEffect(() => {
+    //     const timer = setInterval(() => {
+    //         refresh();
+    //     }, 5000);
+    //     return () => clearInterval(timer);
+    // }, [refresh]);
     // ...
 
     return (
-        <SubmissionContext.Provider value={{ submissions, setSubmissions }}>
+        <SubmissionContext.Provider value={{ submissions, setSubmissions, refresh }}>
             {children}
         </SubmissionContext.Provider>
     );
