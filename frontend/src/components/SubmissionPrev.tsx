@@ -1,13 +1,6 @@
 import { SubmissionT } from "../types.tsx/types";
+import SingleSubmission from "./SingleSubmission";
 
-
-function SingleSubmission({ submission }: { submission: SubmissionT }) {
-    return (
-        <div className="flex flex-col w-64 bg-gray-500 rounded-lg overflow-hidden">
-            <img src={submission.uri} alt="submission" className={""} />
-        </div>
-    );
-}
 
 function SubmissionPrev({ submissions }: { submissions: SubmissionT[] }) {
     // Only display first four submissions
