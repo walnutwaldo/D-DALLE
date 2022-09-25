@@ -13,9 +13,13 @@ export function getKIP7Contract(web3: any, contractAddress: any) {
 }
 
 export function getDDALLEContract(web3: any) {
+    const chainId = Number(web3.currentProvider.chainId);
+    const address = DDALLE_DEPLOYMENT.address[chainId];
+    console.log("chainId:", chainId);
+    console.log("DDALLE contract address:", address);
     const contract = new web3.eth.Contract(
         DDALLE_DEPLOYMENT.abi,
-        DDALLE_DEPLOYMENT.address
+        address
     );
     return contract;
 }
@@ -80,8 +84,9 @@ export function callMakeTask(
             const chain = getChainData(chainId).chain;
             const gasPrice = chain === 'klaytn' ? await apiGetGasPriceKlaytn(chainId) : undefined;
             const gas = chain === 'klaytn'
-                ? await contract.methods.makeTask(description, duration).estimateGas({from: address})
+                ? await contract.methods.makeTask(description, duration).estimateGas({from: address, value: price})
                 : undefined;
+            console.log("sending makeTask transaction");
             await contract.methods
                 .makeTask(description, duration)
                 .send(

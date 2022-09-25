@@ -57,8 +57,6 @@ const downloadImage = async (url, path) => {
     console.log("uploaded to firebase: ", path);
 }
 
-
-
 const urls_from_prompt = async (prompt) => {
     const generations = (await dalle.generate(prompt)).data;
     console.log("generations:", generations);
@@ -95,12 +93,18 @@ const prompt = async (req, res) => {
     res.send(res_data);
 };
 
+const submit = async (req, res) => {
+    const {
+        taskId,
+        uri,
+        prompt,
+        chainId
+    } = req.body;
 
-
-
+    const provider = await getProvider(chainId);
+}
 
 setup().then(() => {
-
     init();
     downloadImage("https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-q5lkwJFPwIcMvcWK0PRbh1U0.jpg", "public/test.jpg");
 
@@ -108,6 +112,6 @@ setup().then(() => {
         .use(express.static(path.join(__dirname, 'public')))
         .use(express.json())
         .post('/prompt', prompt)
+        .post('/submit', submit)
         .listen(PORT, () => console.log(`Listening on ${PORT}`))
-
 });

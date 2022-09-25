@@ -12,12 +12,12 @@ const config: HardhatUserConfig = {
   solidity: "0.8.12",
   networks: {
     testnet: {
-      url: `${BAOBAB_URL}:8651`,
+      url: BAOBAB_URL,
       gasPrice: 25000000000,
       accounts: [PRIVATE_KEY],
     },
     mainnet: {
-      url: `${CYPRESS_URL}:8651`,
+      url: CYPRESS_URL,
       gasPrice: 25000000000,
       accounts: [PRIVATE_KEY],
     }

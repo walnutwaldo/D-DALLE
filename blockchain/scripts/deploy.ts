@@ -7,6 +7,11 @@ const DDALLE_ABI = JSON.parse(
     fs.readFileSync(DDALLE_ARTIFACT_PATH, "utf8")
 )["abi"];
 
+const FRONTEND_DEPLOYMENT_INFO = '../frontend/src/constants/DDALLE_DEPLOYMENT.json';
+const BACKEND_DEPLOYMENT_INFO = '../backend/abi/DDALLE_DEPLOYMENT.json';
+
+const deployment = JSON.parse(fs.readFileSync(FRONTEND_DEPLOYMENT_INFO, 'utf8'));
+
 async function main() {
     const signers = await ethers.getSigners();
     const signer = signers[0];
@@ -25,10 +30,12 @@ async function main() {
         address: address,
     }, null, 2));
 
-    fs.writeFileSync('../frontend/src/constants/DDALLE_DEPLOYMENT.json', JSON.stringify({
-        address: address,
-        abi: DDALLE_ABI
-    }, null, 2));
+    deployment.abi = DDALLE_ABI;
+    deployment.address[ethers.provider.network.chainId] = address;
+    const deploymentString = JSON.stringify(deployment, null, 2);
+
+    fs.writeFileSync(FRONTEND_DEPLOYMENT_INFO, deploymentString);
+    fs.writeFileSync(BACKEND_DEPLOYMENT_INFO, deploymentString);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

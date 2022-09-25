@@ -4,6 +4,9 @@ import axios, {AxiosInstance} from 'axios'
 import BigNumber from "bignumber.js";
 import {convertAmountToRawNumber} from "./bignumber";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 const api = axios.create({
     baseURL: 'https://ethereum-api.xyz',
     timeout: 30000, // 30 secs
@@ -20,7 +23,8 @@ export function isObject(obj: any) {
 export async function apiGetGasPriceKlaytn(
     chainId: number,
 ) {
-    const url = chainId === 8217 ? "https://public-node-api.klaytnapi.com/v1/cypress" : "https://public-node-api.klaytnapi.com/v1/baobab";
+    const url: string = chainId === 8217 ? process.env.REACT_APP_CYPRESS_URL! : process.env.REACT_APP_BAOBAB_URL!;
+    console.log("Reuqest to", url);
     const response = await axios.post(url, {
         'jsonrpc': '2.0',
         'id': 0,
@@ -65,8 +69,7 @@ export async function apiGetAccountAssetsKlaytn(
     address: string,
     chainId: number
 ) {
-
-    const url = chainId === 8217 ? "https://public-node-api.klaytnapi.com/v1/cypress" : "https://public-node-api.klaytnapi.com/v1/baobab";
+    const url: string = chainId === 8217 ? process.env.REACT_APP_CYPRESS_URL! : process.env.REACT_APP_BAOBAB_URL!;
     const response = await axios.post(url, {
         'jsonrpc': '2.0',
         'id': 0,

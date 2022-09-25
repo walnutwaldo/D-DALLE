@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 const supportedChains = [
     {
         name: "Ethereum Mainnet",
@@ -246,7 +249,7 @@ const supportedChains = [
         network: "cypress",
         chain_id: 8217,
         network_id: 8217,
-        rpc_url: "https://public-node-api.klaytnapi.com/v1/cypress",
+        rpc_url: process.env.REACT_APP_CYPRESS_URL!,
         native_currency: {
             symbol: "KLAY",
             name: "KLAY",
@@ -262,7 +265,7 @@ const supportedChains = [
         network: "baobab",
         chain_id: 1001,
         network_id: 1001,
-        rpc_url: "https://public-node-api.klaytnapi.com/v1/baobab",
+        rpc_url: process.env.REACT_APP_BAOBAB_URL!,
         native_currency: {
             symbol: "KLAY",
             name: "KLAY",
