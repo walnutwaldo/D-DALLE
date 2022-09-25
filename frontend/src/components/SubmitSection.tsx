@@ -52,8 +52,12 @@ function SubmitSection({data}: { data: BountyT }) {
                 uri,
                 prompt,
                 web3
-            ).then((res) => {
-                console.log("Result: ", res);
+            ).then(async (res) => {
+                const txn = await (new ethers.providers.JsonRpcProvider(getChainData(chainId).rpc_url)).getTransaction(
+                    res as string
+                );
+                const receipt = await txn.wait();
+                console.log("Receipt: ", receipt);
             }).catch().then(() => {
                 setProposing(false);
             });
