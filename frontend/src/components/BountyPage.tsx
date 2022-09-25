@@ -42,7 +42,7 @@ function BountyPage() {
             </div>
 
             <div>
-                <SubmitSection promptReq={bounty.description} />
+                <SubmitSection data={bounty} />
             </div>
 
             <div className="mt-12 bg-gray-200 flex flex-row flex-wrap justify-around">

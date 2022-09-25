@@ -1,26 +1,30 @@
-import React from "react";
+import React, { useContext } from "react";
+import { BigNumber } from "ethers";
 import LinearProgress from '@mui/material/LinearProgress';
 import { BACKEND_DOMAIN } from "../constants/constants";
+import { callSubmit } from "../helpers/web3";
+import { BountyT } from "../types.tsx/types";
+import Web3Context from "../contexts/Web3Context";
 
 
-function SubmitSection({ promptReq }: { promptReq: string }) {
-    const [prompt, setPrompt] = React.useState(promptReq);
+function SubmitSection({ data }: { data: BountyT }) {
+    const [prompt, setPrompt] = React.useState(data.description);
     const [loading, setLoading] = React.useState(false);
     const [results, setResults] = React.useState([] as string[]);
     const [selImg, setSelImg] = React.useState(-1);
+    const { connected, web3, address, networkId, chainId } = useContext(Web3Context);
 
     const showResults = loading || results.length > 0;
     const readyToSubmit = selImg !== -1;
 
     const sendRequest = async () => {
         setLoading(true);
-        const data = { prompt: prompt };
         const res = await fetch(BACKEND_DOMAIN + "/prompt", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(data),
+            body: JSON.stringify({ prompt: prompt }),
         });
         const json = await res.json();
         console.log("Response: ", json);
@@ -34,6 +38,18 @@ function SubmitSection({ promptReq }: { promptReq: string }) {
     const propose = () => {
         const uri = results[selImg];
         console.log("Propose: ", uri);
+        console.log("Connected:", connected, "to network:", networkId);
+
+        callSubmit(
+            address,
+            chainId,
+            BigNumber.from(data.id),
+            uri,
+            prompt,
+            web3
+        ).then((res) => {
+            console.log("Result: ", res);
+        });
     };
 
     const style_half = "w-1/2 mx-auto flex flex-col gap-2";
@@ -63,7 +79,7 @@ function SubmitSection({ promptReq }: { promptReq: string }) {
                 >
                     Generate Images (takes ~20sec)
                 </button>
-                {showResults && results.length === 0 && <div className="pt-2 pb-4">
+                {loading && <div className="pt-2 pb-4">
                     <LinearProgress />
                 </div>}
             </div>
