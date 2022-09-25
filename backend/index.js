@@ -124,7 +124,7 @@ const submit = async (req, res) => {
         'id': 0,
         'method': 'klay_gasPrice',
     })
-    const { result: gasPrice } = response.data;
+    const {result: gasPrice} = response.data;
     const estimation = await contract.estimateGas.submit(uri, prompt);
 
     try {
@@ -142,6 +142,27 @@ const submit = async (req, res) => {
     }
 }
 
+const submissions = async (req, res) => {
+    const {
+        chainid : chainId,
+        submissionsContract,
+        submissionId
+    } = req.params;
+
+    const address = DDALLE_DEPLOYMENT.address[chainId];
+    if (!address) return res.status(500).send({success: false, error: "chainId not supported"});
+
+    const signer = await getSigner(chainId);
+    const contract = new ethers.Contract(submissionsContract, DDALLE_DEPLOYMENT.submissions_abi, signer);
+
+    return res.status(200).send({
+        "description" : await contract.getPrompt(submissionId),
+        "external_url" : `https://ddalle.xyz/propose/${submissionsContract}`,
+        "image" : await contract.getImageURL(submissionId),
+        "name" : `${await contract.name()} #${submissionId}`
+    })
+}
+
 setup().then(() => {
     init();
     downloadImage("https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-q5lkwJFPwIcMvcWK0PRbh1U0.jpg", "public/test.jpg");
@@ -154,5 +175,6 @@ setup().then(() => {
         }))
         .post('/prompt', prompt)
         .post('/submit', submit)
+        .get('/submissions/:chainid/:submissionsContract/:submissionId', submissions)
         .listen(PORT, () => console.log(`Listening on ${PORT}`))
 });

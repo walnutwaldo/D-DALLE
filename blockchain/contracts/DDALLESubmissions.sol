@@ -27,7 +27,7 @@ contract DDALLESubmissions is KIP17, Ownable {
     uint public numMinted = 0;
 
     mapping(uint => string) public prompts;
-    mapping(uint => string) public uris;
+    mapping(uint => string) public urls;
 
     constructor(uint _taskId) KIP17(
         string.concat("D-DALLE Submission Collection ", Strings.toString(_taskId)),
@@ -36,27 +36,41 @@ contract DDALLESubmissions is KIP17, Ownable {
         taskId = _taskId;
     }
 
-    function submit(string memory uri, string memory prompt) public {
+    function submit(string memory url, string memory prompt) public {
         IDDALLE.Task memory task = IDDALLE(owner()).getTask(taskId);
         require(block.timestamp < task.deadline, "Task deadline has passed");
 
         uint tokenId = numMinted++;
         _safeMint(msg.sender, tokenId);
-        uris[tokenId] = uri;
+        urls[tokenId] = url;
         prompts[tokenId] = prompt;
     }
 
-    /**
-     * @dev See {IKIP17Metadata-tokenURI}.
-     */
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        require(_exists(tokenId), "KIP17Metadata: URI query for nonexistent token");
-        return uris[tokenId];
+    function getImageURL(uint256 tokenId) public view returns (string memory) {
+        require(_exists(tokenId), "DDALLESubmissions: Image query for nonexistent token");
+        return urls[tokenId];
     }
 
     function getPrompt(uint256 tokenId) public view returns (string memory) {
         require(_exists(tokenId), "DDALLESubmissions: Prompt query for nonexistent token");
         return prompts[tokenId];
+    }
+
+    // NFT Data
+    string public BASE_BASE_URI = "https://ddalle-backend.herokuapp.com/submissions/";
+
+    function _baseURI() internal view override returns (string memory) {
+        return string.concat(
+            BASE_BASE_URI,
+            Strings.toString(block.chainid),
+            "/",
+            Strings.toHexString(address(this)),
+            "/"
+        );
+    }
+
+    function setBaseBaseURI(string memory baseBaseURI) public onlyOwner {
+        BASE_BASE_URI = baseBaseURI;
     }
 
     // CUSTOM FUNCTION
@@ -75,7 +89,7 @@ contract DDALLESubmissions is KIP17, Ownable {
         require(submissionId < numSubmissions(), "Submission does not exist");
         return Submission(
             submissionId,
-            uris[submissionId],
+            urls[submissionId],
             prompts[submissionId],
             ownerOf(submissionId)
         );
