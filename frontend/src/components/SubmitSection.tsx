@@ -1,22 +1,22 @@
-import React, { useContext } from "react";
-import { ethers } from "ethers";
+import React, {useContext} from "react";
+import {ethers} from "ethers";
 import LinearProgress from '@mui/material/LinearProgress';
-import { BACKEND_DOMAIN } from "../constants/constants";
-import { callSubmit } from "../helpers/web3";
-import { BountyT } from "../types.tsx/types";
+import {BACKEND_DOMAIN} from "../constants/constants";
+import {callSubmit} from "../helpers/web3";
+import {BountyT} from "../types.tsx/types";
 import Web3Context from "../contexts/Web3Context";
-import { getChainData } from "../helpers/utilities";
+import {getChainData} from "../helpers/utilities";
 import SubmissionContext from "../contexts/SubmissionContext";
 
 
-function SubmitSection({ data }: { data: BountyT }) {
-    const [prompt, setPrompt] = React.useState(data.description);
+function SubmitSection({data}: { data: BountyT }) {
+    const [prompt, setPrompt] = React.useState("");
     const [loading, setLoading] = React.useState(false);
     const [results, setResults] = React.useState([] as string[]);
     const [selImg, setSelImg] = React.useState(-1);
     const [proposing, setProposing] = React.useState(false);
-    const { connected, web3, address, networkId, chainId, connectWallet, provider } = useContext(Web3Context);
-    const { refresh: refreshSubmissions } = useContext(SubmissionContext);
+    const {connected, web3, address, networkId, chainId, connectWallet, provider} = useContext(Web3Context);
+    const {refresh: refreshSubmissions} = useContext(SubmissionContext);
 
     const showResults = loading || results.length > 0;
     const readyToSubmit = selImg !== -1;
@@ -29,7 +29,7 @@ function SubmitSection({ data }: { data: BountyT }) {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ prompt: prompt }),
+            body: JSON.stringify({prompt: prompt}),
         });
         const json = await res.json();
         console.log("Response: ", json);
@@ -60,7 +60,8 @@ function SubmitSection({ data }: { data: BountyT }) {
                 console.log("Txn:", txn);
                 const receipt = await txn.wait();
                 console.log("Receipt: ", receipt);
-            }).catch((e) => { }).then(() => {
+            }).catch((e) => {
+            }).then(() => {
                 setProposing(false);
             });
         } else {
@@ -87,7 +88,8 @@ function SubmitSection({ data }: { data: BountyT }) {
                 } else {
                     alert("Error: " + res.error);
                 }
-            }).catch((e) => { }).then(() => {
+            }).catch((e) => {
+            }).then(() => {
                 setProposing(false);
             });
         }
@@ -105,7 +107,7 @@ function SubmitSection({ data }: { data: BountyT }) {
     return (
         <div className="submit-section mt-6 bg-gray-200 pb-5 rounded-lg overflow-hidden ">
             <div className="bg-gray-700 text-2xl text-white font-medium text-center py-7">
-                Submit Your Prompt
+                Try a Prompt
             </div>
             <div className={style_half}>
                 <div className="pt-5">
@@ -113,6 +115,7 @@ function SubmitSection({ data }: { data: BountyT }) {
                     <input
                         className={"w-full h- border border-gray-300 rounded-md p-2"}
                         value={prompt}
+                        placeholder={data.description}
                         disabled={loading}
                         onInput={(e) => setPrompt(e.currentTarget.value)}
                     />
@@ -127,8 +130,9 @@ function SubmitSection({ data }: { data: BountyT }) {
                 >
                     Generate Images (takes ~20sec)
                 </button>
+                <span className={"text-center text-slate-400"}>Generate Free Images With DALL-E 2</span>
                 {loading && <div className="pt-2 pb-4">
-                    <LinearProgress />
+                    <LinearProgress/>
                 </div>}
             </div>
             <div className={"flex flex-col px-12 lg:px-36 xl:px-12"}>
@@ -136,9 +140,9 @@ function SubmitSection({ data }: { data: BountyT }) {
                 {showResults && results.length > 0 && <div className="flex flex-row flex-wrap justify-around">
                     {results.map((url, i) => (
                         <div key={i}
-                            className={"flex flex-col w-64 bg-gray-500 my-5 rounded-lg overflow-hidden " + (selImg === i ? "outline outline-8 outline-blue-500" : "")}
-                            onClick={() => setSelImg(i)}>
-                            <img src={url} alt="submission" />
+                             className={"flex flex-col w-64 bg-gray-500 my-5 rounded-lg overflow-hidden " + (selImg === i ? "outline outline-8 outline-blue-500" : "")}
+                             onClick={() => setSelImg(i)}>
+                            <img src={url} alt="submission"/>
                         </div>
                     ))}
                 </div>
@@ -148,7 +152,8 @@ function SubmitSection({ data }: { data: BountyT }) {
                 {!connected && <div className={"text-center text-orange-600 py-1 rounded-md bg-orange-200"}>
                     <button className={"underline"} onClick={
                         connectWallet
-                    }>Connect your wallet</button> to earn rewards if your artwork is selected
+                    }>Connect your wallet
+                    </button> to earn rewards when your art is selected
                 </div>}
                 <button
                     className={
@@ -161,6 +166,9 @@ function SubmitSection({ data }: { data: BountyT }) {
                     {proposing ? "Proposing ..." : "Propose Image" + (!connected ? " Anyway" : "")}
                     {/*{"Propose Image" + (!connected ? " Anyway" : "")}*/}
                 </button>
+                <span className={"text-slate-400 text-center"}>
+                    {!connected && "Proposing is free if you don't have a wallet connected"}
+                </span>
             </div>
             }
         </div>
