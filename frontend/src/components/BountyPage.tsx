@@ -1,4 +1,4 @@
-import React, {useContext} from "react";
+import React, { useContext } from "react";
 import GlobalDataContext from "../contexts/GlobalDataContext";
 import { useParams } from 'react-router-dom';
 import { BigNumber, ethers } from "ethers";
@@ -57,7 +57,7 @@ function BountyPageMain(props: { bounty: BountyT, submissions: SubmissionT[] }) 
             </div>
         }
 
-        <div className="mt-12 bg-gray-200 ">
+        <div className="mt-12 bg-gray-200 rounded-lg overflow-hidden ">
             <div className="bg-gray-700 py-7">
                 <div className="text-2xl text-white font-medium text-center ">
                     {isClaimable ? "Time to choose a winner" : (
@@ -69,7 +69,7 @@ function BountyPageMain(props: { bounty: BountyT, submissions: SubmissionT[] }) 
                     {!isOver && isOwner && "You can choose a winner when the time is up."}
                 </div>}
             </div>
-            <div className="mt-8 flex flex-row flex-wrap justify-around">
+            <div className="py-8 flex flex-row flex-wrap justify-around gap-8">
                 {submissions.map(
                     sub => <SingleSubmission
                         key={sub.submissionId}
@@ -83,7 +83,7 @@ function BountyPageMain(props: { bounty: BountyT, submissions: SubmissionT[] }) 
 }
 
 function BountyPage() {
-    const {globalData} = useContext(GlobalDataContext);
+    const { globalData } = useContext(GlobalDataContext);
 
     const { contractAddress } = useParams();
     const bounty = globalData.bounties.filter(b => b.submissionsContract === contractAddress)[0];
