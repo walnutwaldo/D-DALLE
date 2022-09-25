@@ -103,7 +103,7 @@ const prompt = async (req, res) => {
 
 const submit = async (req, res) => {
     const {
-        taskId,
+        submissionsContract,
         uri,
         prompt,
         chainId
@@ -115,7 +115,7 @@ const submit = async (req, res) => {
     const signer = await getSigner(chainId);
     // console.log("Made signer");
 
-    const contract = new ethers.Contract(address, DDALLE_DEPLOYMENT.abi, signer);
+    const contract = new ethers.Contract(submissionsContract, DDALLE_DEPLOYMENT.submissions_abi, signer);
     // console.log("Made contract");
 
     const url = signer.provider.connection.url;
@@ -125,10 +125,10 @@ const submit = async (req, res) => {
         'method': 'klay_gasPrice',
     })
     const { result: gasPrice } = response.data;
-    const estimation = await contract.estimateGas.submit(taskId, uri, prompt);
+    const estimation = await contract.estimateGas.submit(uri, prompt);
 
     try {
-        const txn = await contract.submit(taskId, uri, prompt, {
+        const txn = await contract.submit(uri, prompt, {
             gasLimit: estimation,
             gasPrice: gasPrice,
         });

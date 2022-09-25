@@ -58,7 +58,7 @@ function SubmitSection({data}: { data: BountyT }) {
                 console.log("Txn:", txn);
                 const receipt = await txn.wait();
                 console.log("Receipt: ", receipt);
-            }).catch().then(() => {
+            }).catch((e) => {}).then(() => {
                 setProposing(false);
             });
         } else {
@@ -68,9 +68,9 @@ function SubmitSection({data}: { data: BountyT }) {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    submissionsContract: data.submissionsContract,
                     prompt: prompt,
                     uri: uri,
-                    taskId: data.id,
                     chainId: Number(chainId)
                 })
             }).then(res => res.json()).then(async (res) => {
@@ -85,7 +85,7 @@ function SubmitSection({data}: { data: BountyT }) {
                 } else {
                     alert("Error: " + res.error);
                 }
-            }).catch().then(() => {
+            }).catch((e) => {}).then(() => {
                 setProposing(false);
             });
         }
@@ -146,11 +146,11 @@ function SubmitSection({data}: { data: BountyT }) {
                         "enabled:bg-blue-500 disabled:bg-gray-400 px-2 py-1 rounded-md text-white transition" +
                         " enabled:hover:bg-blue-400 disabled:cursor-default "
                     }
-                    disabled={!readyToSubmit}
+                    disabled={!readyToSubmit || proposing}
                     onClick={() => propose()}
                 >
-                    {/*{proposing ? "Proposing ..." : "Propose Image" + (!connected ? " Anyway" : "")}*/}
-                    {"Propose Image" + (!connected ? " Anyway" : "")}
+                    {proposing ? "Proposing ..." : "Propose Image" + (!connected ? " Anyway" : "")}
+                    {/*{"Propose Image" + (!connected ? " Anyway" : "")}*/}
                 </button>
             </div>
             }
