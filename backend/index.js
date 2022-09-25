@@ -1,5 +1,12 @@
-//import { Dalle } from "dalle-node";
+const {getSigner} = require("./web3");
+
+const ethers = require('ethers');
+require('dotenv').config();
+
 let dalle;
+
+const DDALLE_DEPLOYMENT  = require("./abi/DDALLE_DEPLOYMENT.json");
+
 
 const setup = async () => {
     const { Dalle } = await import("dalle-node");
@@ -101,7 +108,19 @@ const submit = async (req, res) => {
         chainId
     } = req.body;
 
-    const provider = await getProvider(chainId);
+    const address = DDALLE_DEPLOYMENT.address[chainId];
+    const signer = await getSigner(chainId);
+    console.log("Made signer");
+    const contract = new ethers.Contract(address, DDALLE_DEPLOYMENT.abi, signer);
+    console.log("Made contract");
+
+    const tx = await contract.submit(taskId, uri, prompt);
+    console.log("Made txn");
+    const receipt = await tx.wait();
+    req.send({
+        success: true,
+        receipt
+    })
 }
 
 setup().then(() => {

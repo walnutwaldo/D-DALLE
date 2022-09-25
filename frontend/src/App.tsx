@@ -69,6 +69,8 @@ function Web3ContextProvider(props: any) {
     )
 }
 
+let bountyRefreshCnt = 0;
+
 function GlobalDataProvider(props: any) {
     const {children} = props;
 
@@ -84,13 +86,13 @@ function GlobalDataProvider(props: any) {
         setBountyData(globalData.bounties);
     };
 
-    useEffect(() => {
-        refreshBountyData().then();
-    }, [web3, provider, chainId, connected, networkId])
-
     async function refreshBountyDataWithWeb3(web3: Web3, chainId: number) {
+        console.log("refreshing chain", chainId);
+        const currBountyCnt = ++bountyRefreshCnt;
         callNumTasks(web3, chainId)
             .then((num_tasks: any) => {
+                console.log("num_tasks: " + num_tasks);
+                console.log(BigNumber.from(num_tasks).gt(0));
                 if (BigNumber.from(num_tasks).gt(0)) {
                     return callGetTasks(0, web3, chainId);
                 } else {
@@ -98,7 +100,7 @@ function GlobalDataProvider(props: any) {
                 }
             })
             .then((tasks: any) => {
-                setBountyData(tasks.map((task: any) => {
+                const newBountyData = tasks.map((task: any) => {
                     const {
                         id,
                         description,
@@ -117,7 +119,10 @@ function GlobalDataProvider(props: any) {
                         completed,
                         winner
                     }
-                }))
+                });
+                if (currBountyCnt === bountyRefreshCnt) {
+                    setBountyData(newBountyData);
+                }
             });
     }
 
@@ -133,6 +138,10 @@ function GlobalDataProvider(props: any) {
             }
         }
     }
+
+    useEffect(() => {
+        refreshBountyData().then();
+    }, [web3, provider, chainId, connected, networkId])
 
     return (
         <GlobalDataContext.Provider value={{
