@@ -28,10 +28,12 @@ function SubmitSection({ promptReq }: { promptReq: string }) {
             alert("Error: " + json);
         }
         setResults(json.urls);
+        setLoading(false);
     };
 
     const propose = () => {
-        console.log("Propose: ", selImg);
+        const uri = results[selImg];
+        console.log("Propose: ", uri);
     };
 
     const style_half = "w-1/2 mx-auto flex flex-col gap-2";
@@ -69,7 +71,9 @@ function SubmitSection({ promptReq }: { promptReq: string }) {
 
                 {showResults && results.length > 0 && <div className="flex flex-row flex-wrap justify-around">
                     {results.map((url, i) => (
-                        <div key={i} className="flex flex-col w-64 bg-gray-500 my-5" >
+                        <div key={i}
+                            className={"flex flex-col w-64 bg-gray-500 my-5 " + (selImg === i ? "border-8 border-blue-500" : "")}
+                            onClick={() => setSelImg(i)}>
                             <img src={url} alt="submission" />
                         </div>
                     ))}
