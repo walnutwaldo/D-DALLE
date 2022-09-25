@@ -6,7 +6,7 @@ function SingleSubmission(props: { submission: SubmissionT, onSelect?: () => voi
         if (e.stopPropagation) e.stopPropagation();
         onSelect && onSelect();
     }
-    const wpStyle = "flex flex-col w-64 bg-gray-500 relative " + (selected ? "outline outline-8 outline-blue-500" : "");
+    const wpStyle = "flex flex-col w-64 bg-gray-500 relative rounded-xl overflow-hidden" + (selected ? "outline outline-8 outline-blue-500" : "");
     const buttonStyle = "absolute w-full bottom-0 text-white text-center bg-gray-600 hover:bg-gray-500 transition py-2 " + (selected ? " !bg-blue-500" : "");
     return (
         <button className={wpStyle} onClick={() => {
