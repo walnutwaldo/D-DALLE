@@ -7,8 +7,10 @@ function Body() {
     return (
         <div>
             <Header />
-            <div className={"container mx-auto py-4"}>
-                <Outlet />
+            <div className={"bg-stone-100"}>
+                <div className={"container mx-auto py-4 "}>
+                    <Outlet />
+                </div>
             </div>
             <Footer />
         </div>

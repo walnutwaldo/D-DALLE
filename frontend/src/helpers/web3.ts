@@ -12,8 +12,11 @@ export function getKIP7Contract(web3: any, contractAddress: any) {
     return tokenContract;
 }
 
-export function getDDALLEContract(web3: any) {
-    const chainId = Number(web3.currentProvider.chainId);
+export function getDDALLEContract(web3: any, chainId: number) {
+    // We have to pass in chainId and not just do this:
+    // const chainId = Number(web3.currentProvider.chainId);
+    // because chainId is not available in the provider object sometimes
+
     const address = DDALLE_DEPLOYMENT.address[chainId];
     console.log("chainId:", chainId);
     console.log("DDALLE contract address:", address);
@@ -80,7 +83,7 @@ export function callMakeTask(
 ) {
     return new Promise(async (resolve, reject) => {
         try {
-            const contract = getDDALLEContract(web3);
+            const contract = getDDALLEContract(web3, chainId);
             const chain = getChainData(chainId).chain;
             const gasPrice = chain === 'klaytn' ? await apiGetGasPriceKlaytn(chainId) : undefined;
             const gas = chain === 'klaytn'
@@ -98,6 +101,70 @@ export function callMakeTask(
                         resolve(data)
                     }
                 )
+        } catch (err) {
+            reject(err)
+        }
+    });
+}
+
+export function callNumTasks(
+    web3: any,
+    chainId: number,
+) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const contract = getDDALLEContract(web3, chainId);
+            const tasks = await contract.methods.numTasks().call();
+            resolve(tasks);
+        } catch (err) {
+            reject(err)
+        }
+    });
+}
+
+export function callGetTasks(
+    pageNumber: number,
+    web3: any,
+    chainId: number,
+) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const contract = getDDALLEContract(web3, chainId);
+            const tasks = await contract.methods.getTasks(pageNumber).call();
+            resolve(tasks);
+        } catch (err) {
+            reject(err)
+        }
+    });
+}
+
+export function callNumSubmissions(
+    taskId: any,
+    web3: any,
+    chainId: number,
+) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const contract = getDDALLEContract(web3, chainId);
+            const tasks = await contract.methods.numSubmissions(taskId).call();
+            resolve(tasks);
+        } catch (err) {
+            reject(err)
+        }
+    });
+}
+
+export function callGetSubmissions(
+    taskId: any,
+    pageNumber: number,
+    web3: any,
+    chainId: number,
+) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const contract = getDDALLEContract(web3, chainId);
+            const submissions = await contract.methods.getSubmissions(taskId, pageNumber).call();
+            resolve(submissions);
         } catch (err) {
             reject(err)
         }

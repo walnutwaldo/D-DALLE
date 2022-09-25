@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract DDALLE is Ownable, ReentrancyGuard {
 
+    uint constant public PAGE_SIZE = 10;
+
     struct Task {
         uint id;
         string description;
@@ -95,23 +97,32 @@ contract DDALLE is Ownable, ReentrancyGuard {
     function getSubmissions(uint taskId, uint pageNumber) public view returns (Submission[] memory results) {
         require(taskId < tasks.length, "Task does not exist");
         Submission[] storage submissionsForTask = submissions[taskId];
-        uint submissionsPerPage = 10;
-        uint startIndex = pageNumber * submissionsPerPage;
-        require(startIndex < submissionsForTask.length, "Page does not exist");
-        uint endIndex = startIndex + submissionsPerPage;
-        if (endIndex > submissionsForTask.length) {
-            endIndex = submissionsForTask.length;
+
+        // Backwards paging
+        uint skip = pageNumber * PAGE_SIZE;
+        uint cnt = submissionsForTask.length;
+        require(skip < cnt, "Page does not exist");
+
+        uint startIdx = cnt - skip;
+        uint endIndex = (startIdx < PAGE_SIZE) ? 0 : startIdx - PAGE_SIZE;
+
+        results = new Submission[](startIdx - endIndex);
+        for (uint i = startIdx - 1;; i--) {
+            results[startIdx - 1 - i] = submissionsForTask[i];
+            if (i == endIndex) break;
         }
-        results = new Submission[](endIndex - startIndex);
-        for (uint i = startIndex; i < endIndex; i++) {
-            results[i - startIndex] = submissionsForTask[i];
-        }
+    }
+
+    function numSubmissions(uint taskId) public view returns (uint) {
+        require(taskId < tasks.length, "Task does not exist");
+        return submissions[taskId].length;
     }
 
     function getSubmission(uint taskId, uint submissionId) public view returns (Submission memory) {
         require(taskId < tasks.length, "Task does not exist");
         Submission[] storage submissionsForTask = submissions[taskId];
-        require(submissionId < submissionsForTask.length, "Submission does not exist");
+        uint cnt = submissionsForTask.length;
+        require(submissionId < cnt, "Submission does not exist");
         return submissionsForTask[submissionId];
     }
 
@@ -129,16 +140,17 @@ contract DDALLE is Ownable, ReentrancyGuard {
     }
 
     function getTasks(uint pageNumber) public view returns (Task[] memory results) {
-        uint tasksPerPage = 10;
-        uint startIndex = pageNumber * tasksPerPage;
-        require(startIndex < tasks.length, "Page does not exist");
-        uint endIndex = startIndex + tasksPerPage;
-        if (endIndex > tasks.length) {
-            endIndex = tasks.length;
-        }
-        results = new Task[](endIndex - startIndex);
-        for (uint i = startIndex; i < endIndex; i++) {
-            results[i - startIndex] = tasks[i];
+        uint skip = pageNumber * PAGE_SIZE;
+        uint cnt = tasks.length;
+        require(skip < cnt, "Page does not exist");
+
+        uint startIdx = cnt - skip;
+        uint endIndex = (startIdx < PAGE_SIZE) ? 0 : startIdx - PAGE_SIZE;
+
+        results = new Task[](startIdx - endIndex);
+        for (uint i = startIdx - 1;; i--) {
+            results[startIdx - 1 - i] = tasks[i];
+            if (i == endIndex) break;
         }
     }
 
@@ -147,7 +159,8 @@ contract DDALLE is Ownable, ReentrancyGuard {
     }
 
     function getTask(uint taskId) public view returns (Task memory) {
-        require(taskId < tasks.length, "Task does not exist");
+        uint cnt = tasks.length;
+        require(taskId < cnt, "Task does not exist");
         return tasks[taskId];
     }
 

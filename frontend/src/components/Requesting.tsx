@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import Web3Context from "../contexts/Web3Context";
 import {BigNumber, ethers} from "ethers";
 import {callMakeTask} from "../helpers/web3";
+import {getChainData} from "../helpers/utilities";
 
 function Requesting() {
     const {connected, web3, address, networkId, chainId} = useContext(Web3Context);
@@ -24,7 +25,6 @@ function Requesting() {
     function refreshEditingDuration() {
         setEditingDuration(document.activeElement === durationRef?.current);
     }
-
 
     function sendRequest() {
         callMakeTask(
@@ -57,6 +57,9 @@ function Requesting() {
         && description.length > 10
         && Number(duration) > 0;
 
+    const chainData = getChainData(chainId);
+    const currencyTicker = chainData.native_currency.symbol;
+
     return connected ? (
         <div className={"w-1/2 mx-auto flex flex-col gap-2"}>
             <h3 className={"text-lg font-bold"}>Request an Image</h3>
@@ -78,7 +81,7 @@ function Requesting() {
                     </span>
                 </span>
                 <span
-                    className={"flex flex-row items-baseline gap-2 rounded-md border" + (
+                    className={"flex flex-row items-baseline gap-2 rounded-md border bg-white" + (
                         editingPrice ? " outline outline-2 outline-blue-500" : ""
                     )}
                     onClick={() => {
@@ -115,14 +118,14 @@ function Requesting() {
                                }
                            }}
                     />
-                    <span className={"pr-2"}>KLAY</span>
+                    <span className={"pr-2 text-gray-400"}>{currencyTicker}</span>
                 </span>
 
             </div>
             <div>
                 <label className={"font-semibold"}>Duration</label>
                 <span
-                    className={"flex flex-row items-baseline gap-2 rounded-md border" + (
+                    className={"flex flex-row items-baseline gap-2 rounded-md border bg-white" + (
                         editingDuration ? " outline outline-2 outline-blue-500" : ""
                     )}
                     onClick={() => {
@@ -147,7 +150,7 @@ function Requesting() {
                                refreshEditingDuration();
                            }}
                     />
-                    <span className={"pr-2"}>minutes</span>
+                    <span className={"pr-2 text-gray-400"}>minutes</span>
                 </span>
 
             </div>

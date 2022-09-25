@@ -7,6 +7,7 @@ import {
 } from "../helpers/utilities";
 import {isHexString} from "ethereumjs-util";
 import Web3Context from "../contexts/Web3Context";
+import {DEFAULT_CHAIN_ID} from "../helpers/chains";
 
 const PROVIDER_OPTIONS = {
     kaikas: {
@@ -91,9 +92,13 @@ function ConnectWallet() {
             await provider.close();
         }
         await web3Modal.clearCachedProvider();
+
+        setWeb3(null);
         setProvider(null);
-        setChainId(1);
+        setChainId(DEFAULT_CHAIN_ID);
+        setNetworkId(DEFAULT_CHAIN_ID);
         setConnected(false);
+        setAddress("");
     }
 
     useEffect(() => {
@@ -115,15 +120,15 @@ function ConnectWallet() {
                 >
                     Connect Wallet
                 </button> : (
-                    <div className={"flex flex-row items-baseline"}>
-                        <div className={"font-mono text-sm p-1 bg-slate-500 rounded-md mr-1"}>
+                    <div className={"flex flex-row items-baseline gap-1"}>
+                        <div className={"font-mono text-sm p-1 bg-slate-800 bg-opacity-70 rounded-md"}>
                             {getChainData(chainId).name}
                         </div>
-                        <div className={"font-mono text-sm p-1 bg-slate-500 rounded-md"}>
+                        <div className={"font-mono text-sm p-1 bg-slate-800 bg-opacity-70 rounded-md"}>
                             {addressShort}
                         </div>
                         <button className={
-                            "text-gray-200 p-2 text-md hover:text-white"
+                            "text-gray-200 bg-opacity-70 bg-slate-500 p-1 text-sm hover:text-white rounded-md"
                         } onClick={disconnect}>
                             Disconnect
                         </button>
