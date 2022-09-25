@@ -32,6 +32,22 @@ const toy_data = [
                 "user": "0x4242424242",
                 "image": "https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-dXI6vruy8PisZA8du0OC0G8y.jpg"
             },
+            {
+                "user": "0x4242424242",
+                "image": "https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-dXI6vruy8PisZA8du0OC0G8y.jpg"
+            },
+            {
+                "user": "0x4242424242",
+                "image": "https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-GicLRr9R38wMrN32wWLEFbhq.jpg"
+            },
+            {
+                "user": "0x4242424242",
+                "image": "https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-dXI6vruy8PisZA8du0OC0G8y.jpg"
+            },
+            {
+                "user": "0x4242424242",
+                "image": "https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-GicLRr9R38wMrN32wWLEFbhq.jpg"
+            },
         ],
     },
 ];

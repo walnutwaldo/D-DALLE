@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { FaQuoteLeft } from 'react-icons/fa';
 
 const calc_time_left = (deadline: number) => {
     // unix timestamp to remaining seconds, minutes, hours, days
@@ -13,7 +12,7 @@ const calc_time_left = (deadline: number) => {
 }
 
 
-function Countdown({ deadline }: { deadline: number }) {
+function Countdown({ deadline, classes }: { deadline: number, classes: string | undefined }) {
     const [time_left, setTimeLeft] = React.useState(calc_time_left(deadline));
     const { seconds, minutes, hours, days } = time_left;
 
@@ -27,7 +26,7 @@ function Countdown({ deadline }: { deadline: number }) {
 
 
     return (
-        <div className="text-2xl font-black	text-center pt-3">
+        <div className={"font-black	text-center " + classes}>
             {days > 0 && <span>{days}d </span>}
             {days + hours > 0 && <span>{hours > 9 ? hours : '0' + hours}:</span>}
             {days + hours + minutes > 0 && <span>{minutes > 9 ? minutes : '0' + minutes}:</span>}

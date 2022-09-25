@@ -16,7 +16,8 @@ function Bounties() {
         <div>
             {
                 globalData.bounties.map(bounty => (
-                    <div key={bounty.id} onClick={() => sel_bounty(bounty.id)}>
+                    <div key={bounty.id} onClick={() => sel_bounty(bounty.id)}
+                        className="hover:cursor-pointer">
                         <Bounty data={bounty} />
                     </div>
                 ))

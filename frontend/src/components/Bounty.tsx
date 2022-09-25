@@ -9,11 +9,11 @@ import SubmissionPrev from './SubmissionPrev';
 
 function Bounty({ data }: { data: BountyT }) {
     return (
-        <div className='flex flex-row h-64'>
+        <div className='flex flex-row h-64 hover:bg-gray-100 transition'>
             <BountyPrice price={data.bounty} />
-            <div className="flex flex-col w-64 py-4">
+            <div className="flex flex-col w-64 py-4 flex-shrink-0">
                 <Prompt prompt={data.prompt} />
-                <Countdown deadline={data.deadline} />
+                <Countdown deadline={data.deadline} classes="text-2xl pt-3" />
             </div>
             <SubmissionPrev submissions={data.submissions} />
         </div>
