@@ -9,11 +9,11 @@ const toy_data = [
         "submissions": [
             {
                 "user": "0x4242424242",
-                "image": "https://openai-labs-public-images-prod.azureedge.net/user-WAOFRt6Xqw1eXVzsqjHrsvbg/generations/generation-CmovJQoXMMTLc6iBGOzyKZSi/image.webp"
+                "image": "https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-dXI6vruy8PisZA8du0OC0G8y.jpg"
             },
             {
                 "user": "0x4242424242",
-                "image": "https://openai-labs-public-images-prod.azureedge.net/user-WAOFRt6Xqw1eXVzsqjHrsvbg/generations/generation-CmovJQoXMMTLc6iBGOzyKZSi/image.webp"
+                "image": "https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-GicLRr9R38wMrN32wWLEFbhq.jpg"
             },
         ],
     },
@@ -26,11 +26,11 @@ const toy_data = [
         "submissions": [
             {
                 "user": "0x4242424242",
-                "image": "https://openai-labs-public-images-prod.azureedge.net/user-WAOFRt6Xqw1eXVzsqjHrsvbg/generations/generation-CmovJQoXMMTLc6iBGOzyKZSi/image.webp"
+                "image": "https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-q5lkwJFPwIcMvcWK0PRbh1U0.jpg"
             },
             {
                 "user": "0x4242424242",
-                "image": "https://openai-labs-public-images-prod.azureedge.net/user-WAOFRt6Xqw1eXVzsqjHrsvbg/generations/generation-CmovJQoXMMTLc6iBGOzyKZSi/image.webp"
+                "image": "https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-dXI6vruy8PisZA8du0OC0G8y.jpg"
             },
         ],
     },

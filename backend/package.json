@@ -11,7 +11,10 @@
   "dependencies": {
     "dalle-node": "^1.0.7",
     "express": "^4.18.1",
+    "firebase-admin": "^11.0.1",
     "node-fetch": "^3.2.10",
-    "node-fetch-commonjs": "^3.2.4"
+    "node-fetch-commonjs": "^3.2.4",
+    "uuid": "^9.0.0",
+    "uuid-v4": "^0.1.0"
   }
 }
