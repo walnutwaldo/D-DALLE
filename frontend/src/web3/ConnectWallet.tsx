@@ -121,14 +121,14 @@ function ConnectWallet() {
                     Connect Wallet
                 </button> : (
                     <div className={"flex flex-row items-baseline gap-1"}>
-                        <div className={"font-mono text-sm p-1 bg-slate-800 bg-opacity-70 rounded-md"}>
+                        <div className={"py-1 px-2 bg-slate-800 bg-opacity-70 rounded-md"}>
                             {getChainData(chainId).name}
                         </div>
-                        <div className={"font-mono text-sm p-1 bg-slate-800 bg-opacity-70 rounded-md"}>
+                        <div className={"font-mono p-1 bg-slate-800 bg-opacity-70 rounded-md"}>
                             {addressShort}
                         </div>
                         <button className={
-                            "text-gray-200 bg-opacity-70 bg-slate-500 p-1 text-sm hover:text-white rounded-md"
+                            "text-gray-200 bg-opacity-70 bg-slate-500 p-1 hover:text-white hover:bg-opacity-90 rounded-md transition"
                         } onClick={disconnect}>
                             Disconnect
                         </button>

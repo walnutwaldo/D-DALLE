@@ -51,7 +51,7 @@ function Bounty({ data }: { data: BountyT }) {
     }, [data, web3, connected, chainId])
 
     return (
-        <div className='flex flex-row gap-2 h-64'>
+        <div className='flex flex-row gap-4 h-64'>
             <BountyPrice price={data.bounty} />
             <div className="flex flex-col w-64 py-4">
                 <Prompt prompt={data.description} />

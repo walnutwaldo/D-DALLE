@@ -31,7 +31,7 @@ function BountyPage() {
 
     const { globalData } = React.useContext(GlobalDataContext);
     const bounty = globalData.bounties.filter(b => b.id === id)[0];
-    return (
+    return bounty && (
         <div>
             <div className="pt-12" />
             <Prompt prompt={bounty.description} />

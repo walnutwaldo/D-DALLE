@@ -72,7 +72,7 @@ function SubmitSection({ promptReq }: { promptReq: string }) {
                 {showResults && results.length > 0 && <div className="flex flex-row flex-wrap justify-around">
                     {results.map((url, i) => (
                         <div key={i}
-                            className={"flex flex-col w-64 bg-gray-500 my-5 " + (selImg === i ? "border-8 border-blue-500" : "")}
+                            className={"flex flex-col w-64 bg-gray-500 my-5 rounded-lg overflow-hidden " + (selImg === i ? "outline outline-8 outline-blue-500" : "")}
                             onClick={() => setSelImg(i)}>
                             <img src={url} alt="submission" />
                         </div>

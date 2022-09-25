@@ -62,7 +62,7 @@ function Requesting() {
 
     return connected ? (
         <div className={"w-1/2 mx-auto flex flex-col gap-2"}>
-            <h3 className={"text-lg font-bold"}>Request an Image</h3>
+            <h3 className={"text-lg font-bold"}>Create an Art Bounty</h3>
             <div>
                 <label className={"font-semibold"}>Description</label> (min 10 chars)
                 <textarea
