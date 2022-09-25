@@ -1,30 +1,33 @@
-import React, { useContext } from "react";
-import { BigNumber } from "ethers";
+import React, {useContext} from "react";
+import {BigNumber, ethers} from "ethers";
 import LinearProgress from '@mui/material/LinearProgress';
-import { BACKEND_DOMAIN } from "../constants/constants";
-import { callSubmit } from "../helpers/web3";
-import { BountyT } from "../types.tsx/types";
+import {BACKEND_DOMAIN} from "../constants/constants";
+import {callSubmit} from "../helpers/web3";
+import {BountyT} from "../types.tsx/types";
 import Web3Context from "../contexts/Web3Context";
+import {getChainData} from "../helpers/utilities";
 
 
-function SubmitSection({ data }: { data: BountyT }) {
+function SubmitSection({data}: { data: BountyT }) {
     const [prompt, setPrompt] = React.useState(data.description);
     const [loading, setLoading] = React.useState(false);
     const [results, setResults] = React.useState([] as string[]);
     const [selImg, setSelImg] = React.useState(-1);
-    const { connected, web3, address, networkId, chainId } = useContext(Web3Context);
+    const [proposing, setProposing] = React.useState(false);
+    const {connected, web3, address, networkId, chainId, connectWallet} = useContext(Web3Context);
 
     const showResults = loading || results.length > 0;
     const readyToSubmit = selImg !== -1;
 
     const sendRequest = async () => {
         setLoading(true);
+        console.log("BACKEND_DOMAIN", BACKEND_DOMAIN);
         const res = await fetch(BACKEND_DOMAIN + "/prompt", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ prompt: prompt }),
+            body: JSON.stringify({prompt: prompt}),
         });
         const json = await res.json();
         console.log("Response: ", json);
@@ -35,21 +38,53 @@ function SubmitSection({ data }: { data: BountyT }) {
         setLoading(false);
     };
 
-    const propose = () => {
+    const propose = async () => {
+        setProposing(true);
         const uri = results[selImg];
         console.log("Propose: ", uri);
         console.log("Connected:", connected, "to network:", networkId);
 
-        callSubmit(
-            address,
-            chainId,
-            BigNumber.from(data.id),
-            uri,
-            prompt,
-            web3
-        ).then((res) => {
-            console.log("Result: ", res);
-        });
+        if (connected) {
+            callSubmit(
+                address,
+                chainId,
+                BigNumber.from(data.id),
+                uri,
+                prompt,
+                web3
+            ).then((res) => {
+                console.log("Result: ", res);
+            }).catch().then(() => {
+                setProposing(false);
+            });
+        } else {
+            const res = await fetch(BACKEND_DOMAIN + "/submit", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    uri: uri,
+                    taskId: data.id,
+                    chainId: Number(chainId)
+                })
+            }).then(res => res.json()).then(async (res) => {
+                console.log("Result: ", res);
+                if (res.success) {
+                    const txnHash = res.txn.hash;
+                    const txn = await (new ethers.providers.JsonRpcProvider(getChainData(chainId).rpc_url)).getTransaction(
+                        txnHash
+                    );
+                    const receipt = await txn.wait();
+                    console.log("Receipt: ", receipt);
+                } else {
+                    alert("Error: " + res.error);
+                }
+            }).catch().then(() => {
+                setProposing(false);
+            });
+        }
     };
 
     const style_half = "w-1/2 mx-auto flex flex-col gap-2";
@@ -80,7 +115,7 @@ function SubmitSection({ data }: { data: BountyT }) {
                     Generate Images (takes ~20sec)
                 </button>
                 {loading && <div className="pt-2 pb-4">
-                    <LinearProgress />
+                    <LinearProgress/>
                 </div>}
             </div>
             <div className={"flex flex-col px-12 lg:px-36 xl:px-12"}>
@@ -88,26 +123,33 @@ function SubmitSection({ data }: { data: BountyT }) {
                 {showResults && results.length > 0 && <div className="flex flex-row flex-wrap justify-around">
                     {results.map((url, i) => (
                         <div key={i}
-                            className={"flex flex-col w-64 bg-gray-500 my-5 rounded-lg overflow-hidden " + (selImg === i ? "outline outline-8 outline-blue-500" : "")}
-                            onClick={() => setSelImg(i)}>
-                            <img src={url} alt="submission" />
+                             className={"flex flex-col w-64 bg-gray-500 my-5 rounded-lg overflow-hidden " + (selImg === i ? "outline outline-8 outline-blue-500" : "")}
+                             onClick={() => setSelImg(i)}>
+                            <img src={url} alt="submission"/>
                         </div>
                     ))}
                 </div>
                 }
             </div>
             {showResults && results.length > 0 && <div className={style_half}>
+                {!connected && <div className={"text-center text-orange-600 py-1 rounded-md bg-orange-200"}>
+                    <button className={"underline"} onClick={
+                        connectWallet
+                    }>Connect your wallet</button> to earn rewards if your artwork is selected
+                </div>}
                 <button
                     className={
                         "enabled:bg-blue-500 disabled:bg-gray-400 px-2 py-1 rounded-md text-white transition" +
                         " enabled:hover:bg-blue-400 disabled:cursor-default "
                     }
-                    disabled={!readyToSubmit}
+                    disabled={!readyToSubmit || proposing}
                     onClick={() => propose()}
-                >Propose Image</button>
+                >
+                    {proposing ? "Proposing ..." : "Propose Image" + (!connected ? " Anyway" : "")}
+                </button>
             </div>
             }
-        </div >
+        </div>
     );
 }
 

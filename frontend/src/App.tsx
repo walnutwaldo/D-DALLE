@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, {useCallback, useEffect, useMemo} from 'react';
 import './App.css';
 import Web3 from "web3";
 import Web3Context from './contexts/Web3Context';
 import Body from './components/Body';
-import { BountyT } from './types.tsx/types';
+import {BountyT} from './types.tsx/types';
 
 import {
     createBrowserRouter,
@@ -12,43 +12,143 @@ import {
 import Bounties from './components/Bounties';
 import Requesting from './components/Requesting';
 import BountyPage from './components/BountyPage';
-import { callGetTasks, callNumTasks } from "./helpers/web3";
-import { BigNumber } from "ethers";
-import GlobalDataContext, { GlobalData } from "./contexts/GlobalDataContext";
-import { getChainData } from "./helpers/utilities";
-import { DEFAULT_CHAIN_ID } from "./helpers/chains";
-import { isFunctionOrConstructorTypeNode } from 'typescript';
+import {callGetTasks, callNumTasks} from "./helpers/web3";
+import {BigNumber} from "ethers";
+import GlobalDataContext, {GlobalData} from "./contexts/GlobalDataContext";
+import {getChainData} from "./helpers/utilities";
+import {DEFAULT_CHAIN_ID} from "./helpers/chains";
+import {isFunctionOrConstructorTypeNode} from 'typescript';
+import Web3Modal from "@klaytn/web3modal";
+import {isHexString} from "ethereumjs-util";
+import {KaikasWeb3Provider} from "@klaytn/kaikas-web3-provider";
 
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <Body />,
+        element: <Body/>,
         children: [
             {
                 path: "/",
-                element: <Bounties />,
+                element: <Bounties/>,
             },
             {
                 path: "request",
-                element: <Requesting />,
+                element: <Requesting/>,
             },
             {
                 path: "propose/:id",
-                element: <BountyPage />,
+                element: <BountyPage/>,
             },
         ]
     },
 ]);
 
+const PROVIDER_OPTIONS = {
+    kaikas: {
+        package: KaikasWeb3Provider,
+    }
+}
+
 function Web3ContextProvider(props: any) {
-    const { children } = props;
+    const {children} = props;
     const [web3, setWeb3] = React.useState<Web3 | null>(null);
     const [provider, setProvider] = React.useState<any>(null);
     const [chainId, setChainId] = React.useState(DEFAULT_CHAIN_ID);
     const [connected, setConnected] = React.useState(false);
     const [address, setAddress] = React.useState("");
     const [networkId, setNetworkId] = React.useState(DEFAULT_CHAIN_ID);
+
+    function getNetwork() {
+        return getChainData(chainId).network;
+    }
+
+    const web3Modal = useMemo(() => new Web3Modal({
+        network: getNetwork(),
+        cacheProvider: true,
+        providerOptions: PROVIDER_OPTIONS
+    }), []);
+
+    function initWeb3(provider: any) {
+        const web3 = new Web3(provider);
+        return web3;
+    }
+
+    const disconnectWallet = useCallback(
+        async () => {
+            if (provider && provider.close) {
+                await provider.close();
+            }
+            await web3Modal.clearCachedProvider();
+
+            setWeb3(null);
+            setProvider(null);
+            setChainId(DEFAULT_CHAIN_ID);
+            setNetworkId(DEFAULT_CHAIN_ID);
+            setConnected(false);
+            setAddress("");
+        },
+        [provider, web3Modal, setWeb3, setProvider, setChainId, setNetworkId, setConnected, setAddress]
+    );
+
+    const subscribeProvider = useCallback(
+        async (provider: any) => {
+            if (!provider.on) {
+                return;
+            }
+            provider.on("close", disconnectWallet);
+            provider.on("accountsChanged", async (accounts: any) => {
+                setAddress(accounts[0]);
+            });
+            provider.on("chainChanged", async (chainId: any) => {
+                const networkId = await web3?.eth.net.getId();
+                chainId = isHexString(chainId) ? Number(chainId).toString() : chainId;
+                setChainId(Number(chainId));
+                setNetworkId(networkId!);
+            });
+            provider.on("networkChanged", async (networkId: any) => {
+                const chainId = await web3?.eth.getChainId();
+                setChainId(Number(chainId));
+                setNetworkId(networkId);
+            });
+        },
+        [disconnectWallet, setAddress, setChainId, setNetworkId, web3]
+    );
+
+    const connectWallet = useCallback(
+        async () => {
+            const provider = await web3Modal.connect();
+            setProvider(provider);
+
+            await subscribeProvider(provider);
+
+            await provider.enable();
+            const web3 = initWeb3(provider);
+            setWeb3(web3);
+
+            const accounts = await web3.eth.getAccounts();
+            console.log("Accounts: ", accounts);
+
+            const address = accounts[0];
+            console.log("Address: ", address);
+            setAddress(address);
+
+            const networkId = await web3.eth.net.getId();
+            setNetworkId(networkId);
+
+            const chainId = await web3.eth.getChainId();
+            setChainId(Number(chainId));
+
+            setConnected(true);
+        },
+        [setProvider, subscribeProvider, setWeb3, setAddress, setNetworkId, setChainId, setConnected]
+    );
+
+    useEffect(() => {
+        if (web3Modal.cachedProvider) {
+            connectWallet().then();
+        }
+    }, []);
 
     return (
         <Web3Context.Provider value={{
@@ -63,7 +163,9 @@ function Web3ContextProvider(props: any) {
             address,
             setAddress,
             networkId,
-            setNetworkId
+            setNetworkId,
+            connectWallet,
+            disconnectWallet,
         }}>
             {children}
         </Web3Context.Provider>
@@ -73,7 +175,7 @@ function Web3ContextProvider(props: any) {
 let bountyRefreshCnt = 0;
 
 function GlobalDataProvider(props: any) {
-    const { children } = props;
+    const {children} = props;
 
     const [bounty_data, setBountyData] = React.useState<BountyT[]>([]);
 
@@ -82,7 +184,7 @@ function GlobalDataProvider(props: any) {
     };
 
 
-    const { web3, provider, chainId, connected, networkId } = React.useContext(Web3Context);
+    const {web3, provider, chainId, connected, networkId} = React.useContext(Web3Context);
 
     const setGlobalData = (globalData: GlobalData) => {
         setBountyData(globalData.bounties);
@@ -160,7 +262,7 @@ function App() {
     return (
         <Web3ContextProvider>
             <GlobalDataProvider>
-                <RouterProvider router={router} />
+                <RouterProvider router={router}/>
             </GlobalDataProvider>
         </Web3ContextProvider>
     );

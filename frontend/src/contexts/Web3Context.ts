@@ -13,7 +13,9 @@ type Web3Context = {
     address: string,
     setAddress: (address: string) => void
     networkId: number
-    setNetworkId: (networkId: number) => void
+    setNetworkId: (networkId: number) => void,
+    connectWallet: () => void,
+    disconnectWallet: () => void,
 }
 
 const DEFAULT_CONTEXT = {
@@ -28,7 +30,9 @@ const DEFAULT_CONTEXT = {
     address: "",
     setAddress: () => {},
     networkId: 1,
-    setNetworkId: () => {}
+    setNetworkId: () => {},
+    connectWallet: () => {},
+    disconnectWallet: () => {},
 }
 
 const Web3Context = React.createContext<Web3Context>(DEFAULT_CONTEXT);

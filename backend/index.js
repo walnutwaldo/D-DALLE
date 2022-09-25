@@ -1,4 +1,5 @@
 const ethers = require('ethers');
+const {BigNumber} = ethers;
 const axios = require('axios');
 require('dotenv').config();
 const {getSigner} = require("./web3");
@@ -123,7 +124,7 @@ const submit = async (req, res) => {
         'id': 0,
         'method': 'klay_gasPrice',
     })
-    const { gasPrice } = response.data;
+    const { result: gasPrice } = response.data;
     const estimation = await contract.estimateGas.submit(taskId, uri, prompt);
 
     try {
@@ -131,7 +132,6 @@ const submit = async (req, res) => {
             gasLimit: estimation,
             gasPrice: gasPrice,
         });
-        // console.log("Made txn");
         res.send({
             success: true,
             txn
