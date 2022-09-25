@@ -4,8 +4,7 @@ type SubmissionT = {
     submissionId: string;
     uri: string;
     prompt: string; // No guarantee this was the actual prompt
-    submitter: string;
-    submissionTime: number;
+    owner: string;
 };
 
 type BountyT = {
@@ -16,6 +15,7 @@ type BountyT = {
     description: string;
     completed: boolean;
     winner: string;
+    submissionsContract: string;
 };
 
 export type { SubmissionT, BountyT };

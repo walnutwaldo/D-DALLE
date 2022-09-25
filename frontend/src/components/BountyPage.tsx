@@ -22,11 +22,11 @@ function BountyPrice({ price }: { price: BigNumber }) {
 
 
 function BountyPage() {
-    const { id } = useParams();
+    const { contractAddress } = useParams();
 
     const { globalData } = React.useContext(GlobalDataContext);
-    const bounty = globalData.bounties.filter(b => b.id === id)[0];
-    if (!id || !bounty) return <div>Not found: {id}</div>;
+    const bounty = globalData.bounties.filter(b => b.submissionsContract === contractAddress)[0];
+    if (!contractAddress || !bounty) return <div>Not found: {contractAddress}</div>;
 
     const isOver = (new Date().getTime() / 1000) > bounty.deadline;
     const isOwner = true;
@@ -57,7 +57,7 @@ function BountyPage() {
                     </div>}
                 </div>
                 <div className="mt-8 flex flex-row flex-wrap justify-around">
-                    <SubmissionProvider id={id}>
+                    <SubmissionProvider submissionsContract={contractAddress}>
                         <SubmissionContext.Consumer>
                             {({ submissions }) => submissions.map(
                                 sub => <SingleSubmission key={sub.submissionId} submission={sub} />

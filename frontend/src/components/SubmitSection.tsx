@@ -48,7 +48,7 @@ function SubmitSection({data}: { data: BountyT }) {
             callSubmit(
                 address,
                 chainId,
-                BigNumber.from(data.id),
+                data.submissionsContract,
                 uri,
                 prompt,
                 web3

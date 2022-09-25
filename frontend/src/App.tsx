@@ -37,7 +37,7 @@ const router = createBrowserRouter([
                 element: <Requesting/>,
             },
             {
-                path: "propose/:id",
+                path: "propose/:contractAddress",
                 element: <BountyPage/>,
             },
         ]
@@ -243,22 +243,13 @@ function GlobalDataProvider(props: any) {
             .then((tasks: any) => {
                 const newBountyData = tasks.map((task: any) => {
                     const {
-                        id,
-                        description,
                         bounty,
-                        deadline,
-                        completed,
-                        owner,
-                        winner
+                        deadline
                     } = task;
                     return {
-                        id,
-                        owner,
+                        ...task,
                         bounty: BigNumber.from(bounty),
                         deadline: Number(deadline),
-                        description,
-                        completed,
-                        winner
                     }
                 });
                 if (currBountyCnt === bountyRefreshCnt) {

@@ -8,6 +8,7 @@
     "hardhat": "^2.11.2"
   },
   "dependencies": {
+    "@klaytn/contracts": "^1.0.4",
     "@openzeppelin/contracts": "^4.8.0-rc.1",
     "truffle-hdwallet-provider-klaytn": "^1.4.2"
   }

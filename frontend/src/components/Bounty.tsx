@@ -12,14 +12,15 @@ import {useNavigate} from "react-router-dom";
 
 function Bounty({data}: { data: BountyT }) {
     const navigate = useNavigate();
+    console.log(data);
 
-    const sel_bounty = (id: string) => {
-        navigate("/propose/" + id);
+    const sel_bounty = (contractAddress: string) => {
+        navigate("/propose/" + contractAddress);
     };
 
     return (
         <div className='flex flex-row gap-4 h-64'>
-            <div onClick={() => sel_bounty(data.id)} className={
+            <div onClick={() => sel_bounty(data.submissionsContract)} className={
                 'flex flex-row gap-4 h-64 bg-gray-200 rounded-lg cursor-pointer hover:bg-gray-300'
             }>
                 <BountyPrice price={data.bounty}/>
@@ -28,7 +29,7 @@ function Bounty({data}: { data: BountyT }) {
                     <Countdown data={data} classes="text-2xl pt-3"/>
                 </div>
             </div>
-            <SubmissionProvider id={data.id}>
+            <SubmissionProvider submissionsContract={data.submissionsContract}>
                 <SubmissionContext.Consumer>
                     {({submissions}) => <SubmissionPrev submissions={submissions}/>}
                 </SubmissionContext.Consumer>

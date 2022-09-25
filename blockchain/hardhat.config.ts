@@ -9,7 +9,15 @@ const CYPRESS_URL = process.env.CYPRESS_URL!;
 const BAOBAB_URL = process.env.BAOBAB_URL!;
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.12",
+  solidity: {
+    version: "0.8.12",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+  },
   networks: {
     testnet: {
       url: BAOBAB_URL,

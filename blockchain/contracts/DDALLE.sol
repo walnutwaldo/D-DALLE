@@ -1,9 +1,8 @@
 pragma solidity ^0.8.0;
 
-// Import Ownable from the OpenZeppelin Contracts library
-import "@openzeppelin/contracts/access/Ownable.sol";
 // Import ReentrancyGuard from the OpenZeppelin Contracts library
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "./DDALLESubmissions.sol";
 
 contract DDALLE is Ownable, ReentrancyGuard {
 
@@ -17,21 +16,12 @@ contract DDALLE is Ownable, ReentrancyGuard {
         address owner;
         bool completed;
         uint256 winner;
-    }
-
-    struct Submission {
-        uint submissionId;
-        string uri;
-        string prompt; // No guarantee this was the actual prompt
-        address payable submitter;
-        uint submissionTime;
+        DDALLESubmissions submissionsContract;
     }
 
     Task[] public tasks;
-    mapping(uint => Submission[]) public submissions;
 
     event TaskCreated(uint indexed id, address indexed owner, uint256 indexed deadline);
-    event SubmissionCreated(uint indexed id, address indexed submitter, string uri);
     event WinnerAssigned(uint indexed id, address indexed winner);
 
     // Duration is in minutes
@@ -40,35 +30,20 @@ contract DDALLE is Ownable, ReentrancyGuard {
         require(bounty > 0, "Bounty must be greater than 0");
         require(duration > 0, "Duration must be greater than 0");
 
+        uint taskId = tasks.length;
         Task memory newTask = Task(
-            tasks.length,
+            taskId,
             description,
             block.timestamp + (duration * 1 minutes),
             bounty,
             msg.sender,
             false,
-            0
+            0,
+            new DDALLESubmissions(taskId)
         );
         tasks.push(newTask);
 
-        emit TaskCreated(newTask.id, newTask.owner, newTask.deadline);
-    }
-
-    function submit(uint taskId, string memory uri, string memory prompt) public nonReentrant {
-        require(taskId < tasks.length, "Task does not exist");
-        Task storage task = tasks[taskId];
-        require(block.timestamp < task.deadline, "Task deadline has passed");
-
-        Submission memory newSubmission = Submission(
-            submissions[taskId].length,
-            uri,
-            prompt,
-            payable(msg.sender),
-            block.timestamp
-        );
-        submissions[taskId].push(newSubmission);
-
-        emit SubmissionCreated(taskId, newSubmission.submitter, newSubmission.uri);
+        emit TaskCreated(taskId, newTask.owner, newTask.deadline);
     }
 
     function assignWinner(uint taskId, uint submissionId) public nonReentrant {
@@ -78,65 +53,27 @@ contract DDALLE is Ownable, ReentrancyGuard {
         require(block.timestamp >= task.deadline, "Task deadline has not passed");
         require(!task.completed, "Task has already been completed");
 
-        Submission storage submission = submissions[taskId][submissionId];
+        require(submissionId < task.submissionsContract.numSubmissions(), "Submission does not exist");
+        address winningOwner = task.submissionsContract.ownerOf(submissionId);
 
         // Send 90% to submitter
-        (bool success, bytes memory data) = submission.submitter.call{value : task.bounty * 9 / 10}("");
+        (bool success, bytes memory data) = winningOwner.call{value : task.bounty * 9 / 10}("");
         require(success, "Transfer failed");
 
         // Send 10% to owner
-        (success, data) = task.owner.call{value : task.bounty / 10}("");
+        (success, data) = owner().call{value : task.bounty / 10}("");
         require(success, "Transfer failed");
 
         task.completed = true;
         task.winner = submissionId;
 
-        emit WinnerAssigned(taskId, submission.submitter);
-    }
-
-    function getSubmissions(uint taskId, uint pageNumber) public view returns (Submission[] memory results) {
-        require(taskId < tasks.length, "Task does not exist");
-        Submission[] storage submissionsForTask = submissions[taskId];
-
-        // Backwards paging
-        uint skip = pageNumber * PAGE_SIZE;
-        uint cnt = submissionsForTask.length;
-        require(skip < cnt, "Page does not exist");
-
-        uint startIdx = cnt - skip;
-        uint endIndex = (startIdx < PAGE_SIZE) ? 0 : startIdx - PAGE_SIZE;
-
-        results = new Submission[](startIdx - endIndex);
-        for (uint i = startIdx - 1;; i--) {
-            results[startIdx - 1 - i] = submissionsForTask[i];
-            if (i == endIndex) break;
-        }
-    }
-
-    function numSubmissions(uint taskId) public view returns (uint) {
-        require(taskId < tasks.length, "Task does not exist");
-        return submissions[taskId].length;
-    }
-
-    function getSubmission(uint taskId, uint submissionId) public view returns (Submission memory) {
-        require(taskId < tasks.length, "Task does not exist");
-        Submission[] storage submissionsForTask = submissions[taskId];
-        uint cnt = submissionsForTask.length;
-        require(submissionId < cnt, "Submission does not exist");
-        return submissionsForTask[submissionId];
+        emit WinnerAssigned(taskId, winningOwner);
     }
 
     function deadlinePassed(uint taskId) public view {
         require(taskId < tasks.length, "Task does not exist");
         Task storage task = tasks[taskId];
         require(block.timestamp > task.deadline, "Task deadline has not passed");
-    }
-
-    function getWinner(uint taskId) public view returns (Submission memory) {
-        require(taskId < tasks.length, "Task does not exist");
-        Task storage task = tasks[taskId];
-        require(task.completed, "Task winner has not been assigned");
-        return submissions[taskId][task.winner];
     }
 
     function getTasks(uint pageNumber) public view returns (Task[] memory results) {

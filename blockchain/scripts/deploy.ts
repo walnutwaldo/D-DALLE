@@ -2,9 +2,13 @@ import {ethers} from "hardhat";
 import fs from 'fs';
 
 const DDALLE_ARTIFACT_PATH = "./artifacts/contracts/DDALLE.Sol/DDALLE.json";
+const DDALLE_SUBMISSIONS_ARTIFACT_PATH = "./artifacts/contracts/DDALLESubmissions.Sol/DDALLESubmissions.json";
 
 const DDALLE_ABI = JSON.parse(
     fs.readFileSync(DDALLE_ARTIFACT_PATH, "utf8")
+)["abi"];
+const DDALLE_SUBMISSIONS_ABI = JSON.parse(
+    fs.readFileSync(DDALLE_SUBMISSIONS_ARTIFACT_PATH, "utf8")
 )["abi"];
 
 const FRONTEND_DEPLOYMENT_INFO = '../frontend/src/constants/DDALLE_DEPLOYMENT.json';
@@ -31,6 +35,7 @@ async function main() {
     }, null, 2));
 
     deployment.abi = DDALLE_ABI;
+    deployment.submissions_abi = DDALLE_SUBMISSIONS_ABI;
     deployment.address[ethers.provider.network.chainId] = address;
     const deploymentString = JSON.stringify(deployment, null, 2);
 
