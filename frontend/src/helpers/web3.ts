@@ -1,6 +1,6 @@
-import {KIP7_CONTRACT} from '../constants'
-import {apiGetGasPriceKlaytn, apiGetGasPrices, getChainData} from './utilities'
-import {BigNumber, ethers} from "ethers";
+import { KIP7_CONTRACT } from '../constants'
+import { apiGetGasPriceKlaytn, apiGetGasPrices, getChainData } from './utilities'
+import { BigNumber, ethers } from "ethers";
 
 const DDALLE_DEPLOYMENT = require('../constants/DDALLE_DEPLOYMENT.json');
 
@@ -35,7 +35,7 @@ export function callBalanceOf(address: string, chainId: number, contractAddress:
             await contract.methods
                 .balanceOf(address)
                 .call(
-                    {from: '0x0000000000000000000000000000000000000000'},
+                    { from: '0x0000000000000000000000000000000000000000' },
                     (err: any, data: any) => {
                         if (err) {
                             console.log('err', err)
@@ -57,11 +57,11 @@ export function callTransfer(address: string, chainId: number, contractAddress: 
             const chain = getChainData(chainId).chain
             const gasPrice = chain === 'klaytn' ? await apiGetGasPriceKlaytn(chainId) : undefined;
             const gas = chain === 'klaytn'
-                ? await contract.methods.transfer(address, '1').estimateGas({from: address})
+                ? await contract.methods.transfer(address, '1').estimateGas({ from: address })
                 : undefined;
             await contract.methods
                 .transfer(address, '1')
-                .send({from: address, gas: gas, gasPrice: gasPrice}, (err: any, data: any) => {
+                .send({ from: address, gas: gas, gasPrice: gasPrice }, (err: any, data: any) => {
                     if (err) {
                         reject(err)
                     }
@@ -87,13 +87,13 @@ export function callMakeTask(
             const chain = getChainData(chainId).chain;
             const gasPrice = chain === 'klaytn' ? await apiGetGasPriceKlaytn(chainId) : undefined;
             const gas = chain === 'klaytn'
-                ? await contract.methods.makeTask(description, duration).estimateGas({from: address, value: price})
+                ? await contract.methods.makeTask(description, duration).estimateGas({ from: address, value: price })
                 : undefined;
             console.log("sending makeTask transaction");
             await contract.methods
                 .makeTask(description, duration)
                 .send(
-                    {from: address, gas: gas, gasPrice: gasPrice, value: price},
+                    { from: address, gas: gas, gasPrice: gasPrice, value: price },
                     (err: any, data: any) => {
                         if (err) {
                             reject(err)
@@ -165,6 +165,41 @@ export function callGetSubmissions(
             const contract = getDDALLEContract(web3, chainId);
             const submissions = await contract.methods.getSubmissions(taskId, pageNumber).call();
             resolve(submissions);
+        } catch (err) {
+            reject(err)
+        }
+    });
+}
+
+
+export function callSubmit(
+    address: string,
+    chainId: number,
+    taskId: BigNumber,
+    uri: string,
+    prompt: string,
+    web3: any
+) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const contract = getDDALLEContract(web3, chainId);
+            const chain = getChainData(chainId).chain;
+            const gasPrice = chain === 'klaytn' ? await apiGetGasPriceKlaytn(chainId) : undefined;
+            const gas = chain === 'klaytn'
+                ? await contract.methods.submit(taskId, uri, prompt).estimateGas({ from: address })
+                : undefined;
+            console.log("sending submit transaction");
+            await contract.methods
+                .submit(taskId, uri, prompt)
+                .send(
+                    { from: address, gas: gas, gasPrice: gasPrice },
+                    (err: any, data: any) => {
+                        if (err) {
+                            reject(err)
+                        }
+                        resolve(data)
+                    }
+                )
         } catch (err) {
             reject(err)
         }
