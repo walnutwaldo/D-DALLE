@@ -17,7 +17,7 @@ function Bounties() {
                     <div key={bounty.id} onClick={() => sel_bounty(bounty.id)} className={
                         "p-2 bg-gray-200 m-4 rounded-lg cursor-pointer hover:bg-gray-300"
                     }>
-                        <Bounty data={bounty}/>
+                        <Bounty data={bounty} />
                     </div>
                 ))
             }

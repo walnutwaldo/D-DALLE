@@ -1,25 +1,25 @@
 import React from 'react';
-import {BountyT} from "../types.tsx/types";
+import { BountyT } from "../types.tsx/types";
 
 const calc_time_left = (deadline: number) => {
     // unix timestamp to remaining seconds, minutes, hours, days
     const now = new Date().getTime() / 1000;
     if (deadline < now) {
-        return {seconds: 0, minutes: 0, hours: 0, days: 0, t_seconds: 0};
+        return { seconds: 0, minutes: 0, hours: 0, days: 0, t_seconds: 0 };
     }
 
     const t_seconds = Math.floor(deadline - now);
     const t_minutes = Math.floor(t_seconds / 60);
     const t_hours = Math.floor(t_minutes / 60);
     const days = Math.floor(t_hours / 24);
-    return {seconds: t_seconds % 60, minutes: t_minutes % 60, hours: t_hours % 24, days, t_seconds: t_seconds};
+    return { seconds: t_seconds % 60, minutes: t_minutes % 60, hours: t_hours % 24, days, t_seconds: t_seconds };
 }
 
 
-function Countdown(props: { data: BountyT }) {
-    const {data: bounty} = props;
+function Countdown(props: { data: BountyT, classes: string | undefined }) {
+    const { data: bounty, classes } = props;
     const [time_left, setTimeLeft] = React.useState(calc_time_left(bounty.deadline));
-    const {seconds, minutes, hours, days, t_seconds} = time_left;
+    const { seconds, minutes, hours, days, t_seconds } = time_left;
 
     // update time left every second
     React.useEffect(() => {
@@ -32,11 +32,11 @@ function Countdown(props: { data: BountyT }) {
 
     return (
         bounty.completed ? (
-            <div className="text-2xl font-black text-green-700 text-center pt-3">
+            <div className={"text-2xl font-black text-green-700 text-center pt-3 " + classes}>
                 Completed
             </div>
         ) : (
-            <div className="text-2xl font-black text-center pt-3">
+            <div className={"text-2xl font-black text-center pt-3" + classes}>
                 {
                     t_seconds === 0 ? (
                         "Time's Up"

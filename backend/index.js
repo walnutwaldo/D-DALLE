@@ -17,7 +17,7 @@ const fetch = require("node-fetch-commonjs");
 const fs = require('fs').promises;
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getStorage } = require('firebase-admin/storage');
-const uuid = require('uuid-v4');
+const cors = require('cors');
 
 
 const express = require('express');
@@ -130,6 +130,9 @@ setup().then(() => {
     express()
         .use(express.static(path.join(__dirname, 'public')))
         .use(express.json())
+        .use(cors({
+            origin: '*'
+        }))
         .post('/prompt', prompt)
         .post('/submit', submit)
         .listen(PORT, () => console.log(`Listening on ${PORT}`))

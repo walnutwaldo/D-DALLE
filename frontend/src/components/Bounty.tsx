@@ -1,19 +1,19 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 
-import {BountyT} from '../types.tsx/types';
+import { BountyT } from '../types.tsx/types';
 import BountyPrice from './BountyPrice';
 import Countdown from './Countdown';
 import Prompt from './Prompt';
 import SubmissionPrev from './SubmissionPrev';
 import Web3Context from "../contexts/Web3Context";
-import {callGetSubmissions, callNumSubmissions} from "../helpers/web3";
-import {BigNumber} from "ethers";
-import {getChainData} from "../helpers/utilities";
+import { callGetSubmissions, callNumSubmissions } from "../helpers/web3";
+import { BigNumber } from "ethers";
+import { getChainData } from "../helpers/utilities";
 import Web3 from "web3";
 
 
-function Bounty({data}: { data: BountyT }) {
-    const {web3, connected, chainId} = React.useContext(Web3Context);
+function Bounty({ data }: { data: BountyT }) {
+    const { web3, connected, chainId } = React.useContext(Web3Context);
 
     const [submissions, setSubmissions] = React.useState([]);
 
@@ -30,7 +30,7 @@ function Bounty({data}: { data: BountyT }) {
             .then(
                 (submissions: any) => setSubmissions(
                     submissions.map((submission: any) => {
-                        const {submissionTime} = submission;
+                        const { submissionTime } = submission;
                         return {
                             ...submission,
                             submissionTime: Number(submissionTime)
@@ -51,13 +51,13 @@ function Bounty({data}: { data: BountyT }) {
     }, [data, web3, connected, chainId])
 
     return (
-        <div className='flex flex-row gap-2 h-64'>
-            <BountyPrice price={data.bounty}/>
+        <div className='flex flex-row gap-2 h-64 hover:bg-gray-100 transition'>
+            <BountyPrice price={data.bounty} />
             <div className="flex flex-col w-64 py-4">
-                <Prompt prompt={data.description}/>
-                <Countdown data={data}/>
+                <Prompt prompt={data.description} />
+                <Countdown data={data} classes="text-2xl pt-3" />
             </div>
-            <SubmissionPrev submissions={submissions}/>
+            <SubmissionPrev submissions={submissions} />
         </div>
     );
 }

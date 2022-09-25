@@ -1,9 +1,9 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import './App.css';
 import Web3 from "web3";
 import Web3Context from './contexts/Web3Context';
 import Body from './components/Body';
-import {BountyT} from './types.tsx/types';
+import { BountyT } from './types.tsx/types';
 
 import {
     createBrowserRouter,
@@ -12,36 +12,37 @@ import {
 import Bounties from './components/Bounties';
 import Requesting from './components/Requesting';
 import BountyPage from './components/BountyPage';
-import {callGetTasks, callNumTasks} from "./helpers/web3";
-import {BigNumber} from "ethers";
-import GlobalDataContext, {GlobalData} from "./contexts/GlobalDataContext";
-import {getChainData} from "./helpers/utilities";
-import {DEFAULT_CHAIN_ID} from "./helpers/chains";
+import { callGetTasks, callNumTasks } from "./helpers/web3";
+import { BigNumber } from "ethers";
+import GlobalDataContext, { GlobalData } from "./contexts/GlobalDataContext";
+import { getChainData } from "./helpers/utilities";
+import { DEFAULT_CHAIN_ID } from "./helpers/chains";
+import { isFunctionOrConstructorTypeNode } from 'typescript';
 
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <Body/>,
+        element: <Body />,
         children: [
             {
                 path: "/",
-                element: <Bounties/>,
+                element: <Bounties />,
             },
             {
                 path: "request",
-                element: <Requesting/>,
+                element: <Requesting />,
             },
             {
                 path: "propose/:id",
-                element: <BountyPage/>,
+                element: <BountyPage />,
             },
         ]
     },
 ]);
 
 function Web3ContextProvider(props: any) {
-    const {children} = props;
+    const { children } = props;
     const [web3, setWeb3] = React.useState<Web3 | null>(null);
     const [provider, setProvider] = React.useState<any>(null);
     const [chainId, setChainId] = React.useState(DEFAULT_CHAIN_ID);
@@ -72,7 +73,7 @@ function Web3ContextProvider(props: any) {
 let bountyRefreshCnt = 0;
 
 function GlobalDataProvider(props: any) {
-    const {children} = props;
+    const { children } = props;
 
     const [bounty_data, setBountyData] = React.useState<BountyT[]>([]);
 
@@ -80,7 +81,8 @@ function GlobalDataProvider(props: any) {
         bounties: bounty_data
     };
 
-    const {web3, provider, chainId, connected, networkId} = React.useContext(Web3Context);
+
+    const { web3, provider, chainId, connected, networkId } = React.useContext(Web3Context);
 
     const setGlobalData = (globalData: GlobalData) => {
         setBountyData(globalData.bounties);
@@ -158,7 +160,7 @@ function App() {
     return (
         <Web3ContextProvider>
             <GlobalDataProvider>
-                <RouterProvider router={router}/>
+                <RouterProvider router={router} />
             </GlobalDataProvider>
         </Web3ContextProvider>
     );

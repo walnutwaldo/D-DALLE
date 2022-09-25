@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "dalle-node": "^1.0.7",
     "dotenv": "^16.0.2",
     "ethers": "^5.7.1",
