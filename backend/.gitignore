@@ -1,2 +1,3 @@
 node_modules/
 public/
+firebase_account_key.json
