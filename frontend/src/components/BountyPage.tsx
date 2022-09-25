@@ -4,11 +4,13 @@ import { useParams } from 'react-router-dom';
 import { BigNumber, ethers } from "ethers";
 import Prompt from "./Prompt";
 import Countdown from "./Countdown";
-import { SubmissionT } from "../types.tsx/types";
+import { BountyT, SubmissionT } from "../types.tsx/types";
 import SubmitSection from "./SubmitSection";
 import SubmissionProvider from "../contexts/SubmissionProvider";
 import SubmissionContext from "../contexts/SubmissionContext";
 import SingleSubmission from "./SingleSubmission";
+import WinnerSection from "./WinnerSection";
+import Web3Context from "../contexts/Web3Context";
 
 
 function BountyPrice({ price }: { price: BigNumber }) {
@@ -20,53 +22,79 @@ function BountyPrice({ price }: { price: BigNumber }) {
     </div >
 }
 
+function BountyPageMain(props: { bounty: BountyT, submissions: SubmissionT[] }) {
+    const { bounty, submissions } = props;
+    const { address } = React.useContext(Web3Context);
+    const [selSub, setSelSub] = React.useState<SubmissionT | null>(null);
+    const [winnerChosen, setWinnerChosen] = React.useState(false);
+
+    React.useEffect(() => {
+        const winnerSubList = (bounty.completed
+            ? submissions.filter((sub) => sub.submissionId === bounty.winner)
+            : []);
+        const winnerSub = winnerSubList.length > 0 ? winnerSubList[0] : null;
+        if (winnerSub) setSelSub(winnerSub);
+    }, [bounty, submissions]);
+
+    const isOver = (new Date().getTime() / 1000) > bounty.deadline;
+    const isOwner = address === bounty.owner;
+    const isClaimable = isOver && isOwner && !bounty.completed && !winnerChosen;
+
+    return <div>
+        <div className="pt-12" />
+        <Prompt prompt={bounty.description} />
+        <WinnerSection submission={selSub} bounty={bounty}
+            claimable={isClaimable} chooseWinner={() => setWinnerChosen(true)} />
+        <div className="flex flex-row justify-center items-center pt-12">
+            <BountyPrice price={bounty.bounty} />
+            <div className="w-1 bg-gray-700 mx-5 h-8" ></div>
+            <Countdown data={bounty} classes="text-4xl" />
+        </div>
+
+        {
+            !isOver && <div>
+                <SubmitSection data={bounty} />
+            </div>
+        }
+
+        <div className="mt-12 bg-gray-200 ">
+            <div className="bg-gray-700 py-7">
+                <div className="text-2xl text-white font-medium text-center ">
+                    {isClaimable ? "Time to choose a winner" : (
+                        bounty.completed ? "Other submissions" : "Previous submissions")}
+                </div>
+                {(isOver || isOwner) && !bounty.completed && <div className="text-lg text-white text-center mt-2">
+                    {isOver && !isOwner && "Waiting for the owner to choose a winner."}
+                    {isOver && isOwner && "Select which image you want to award the bounty to."}
+                    {!isOver && isOwner && "You can choose a winner when the time is up."}
+                </div>}
+            </div>
+            <div className="mt-8 flex flex-row flex-wrap justify-around">
+                {submissions.map(
+                    sub => <SingleSubmission
+                        key={sub.submissionId}
+                        submission={sub}
+                        onSelect={(isClaimable && (() => setSelSub(sub))) || undefined}
+                        selected={sub.submissionId === selSub?.submissionId} />
+                )}
+            </div>
+        </div>
+    </div >
+}
 
 function BountyPage() {
     const { id } = useParams();
-
     const { globalData } = React.useContext(GlobalDataContext);
-    const bounty = globalData.bounties.filter(b => b.id === id)[0];
-    if (!id || !bounty) return <div>Not found: {id}</div>;
 
-    const isOver = (new Date().getTime() / 1000) > bounty.deadline;
-    const isOwner = true;
+    const bounty = globalData.bounties.filter(b => b.id === id)[0];
+    if (!id || !bounty) return <div>Loading... (id: {id})</div>;
 
     return (
-        <div>
-            <div className="pt-12" />
-            <Prompt prompt={bounty.description} />
-            <div className="flex flex-row justify-center items-center pt-12">
-                <BountyPrice price={bounty.bounty} />
-                <div className="w-1 bg-gray-700 mx-5 h-8" ></div>
-                <Countdown data={bounty} classes="text-4xl" />
-            </div>
-
-            {!isOver && <div>
-                <SubmitSection data={bounty} />
-            </div>}
-
-            <div className="mt-12 bg-gray-200 ">
-                <div className="bg-gray-700 py-7">
-                    <div className="text-2xl text-white font-medium text-center ">
-                        {isOver && isOwner ? "Time to choose a winner" : "Previous submissions"}
-                    </div>
-                    {(isOver || isOwner) && <div className="text-lg text-white text-center mt-2">
-                        {isOver && !isOwner && "Waiting for the owner to choose a winner."}
-                        {isOver && isOwner && "Select which image you want to award the bounty to."}
-                        {!isOver && isOwner && "You can choose a winner when the time is up."}
-                    </div>}
-                </div>
-                <div className="mt-8 flex flex-row flex-wrap justify-around">
-                    <SubmissionProvider id={id}>
-                        <SubmissionContext.Consumer>
-                            {({ submissions }) => submissions.map(
-                                sub => <SingleSubmission key={sub.submissionId} submission={sub} />
-                            )}
-                        </SubmissionContext.Consumer>
-                    </SubmissionProvider>
-                </div>
-            </div>
-        </div>
+        <SubmissionProvider id={id}>
+            <SubmissionContext.Consumer>
+                {({ submissions }) => <BountyPageMain bounty={bounty} submissions={submissions} />}
+            </SubmissionContext.Consumer>
+        </SubmissionProvider>
     );
 };
 
