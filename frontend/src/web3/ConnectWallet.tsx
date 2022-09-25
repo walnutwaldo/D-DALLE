@@ -7,6 +7,7 @@ import {
 } from "../helpers/utilities";
 import {isHexString} from "ethereumjs-util";
 import Web3Context from "../contexts/Web3Context";
+import {DEFAULT_CHAIN_ID} from "../helpers/chains";
 
 const PROVIDER_OPTIONS = {
     kaikas: {
@@ -91,9 +92,13 @@ function ConnectWallet() {
             await provider.close();
         }
         await web3Modal.clearCachedProvider();
+
+        setWeb3(null);
         setProvider(null);
-        setChainId(1);
+        setChainId(DEFAULT_CHAIN_ID);
+        setNetworkId(DEFAULT_CHAIN_ID);
         setConnected(false);
+        setAddress("");
     }
 
     useEffect(() => {

@@ -1,10 +1,10 @@
 import React from 'react';
-import PageContext from '../contexts/PageContext';
+import GlobalDataContext from '../contexts/GlobalDataContext';
 import Bounty from './Bounty';
 import { useNavigate } from "react-router-dom";
 
 function Bounties() {
-    const { globalData } = React.useContext(PageContext);
+    const { globalData } = React.useContext(GlobalDataContext);
 
     const navigate = useNavigate();
     const sel_bounty = (id: string) => {

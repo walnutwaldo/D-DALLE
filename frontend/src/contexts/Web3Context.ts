@@ -3,7 +3,7 @@ import React from "react";
 
 type Web3Context = {
     web3: Web3 | null,
-    setWeb3: (web3: Web3) => void
+    setWeb3: (web3: Web3 | null) => void
     provider: any,
     setProvider: (provider: any) => void
     chainId: number,

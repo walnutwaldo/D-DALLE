@@ -119,7 +119,8 @@ export function getChainData(chainId: number) {
             native_currency: {
                 name: "Unknown",
                 symbol: "UKNOWN",
-            }
+            },
+            rpc_url: ""
         }
     }
 

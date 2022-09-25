@@ -6,14 +6,14 @@ export type GlobalData = {
     bounties: BountyT[],
 }
 
-export type PageContextType = {
+export type GlobalContextType = {
     globalData: GlobalData
     setGlobalData: (globalData: GlobalData) => void,
 }
 
-const PageContext = React.createContext<PageContextType>({
+const GlobalDataContext = React.createContext<GlobalContextType>({
     globalData: { bounties: [] },
-    setGlobalData: (globalData: GlobalData) => { },
+    setGlobalData: (globalData: GlobalData) => {},
 });
 
-export default PageContext;
+export default GlobalDataContext;

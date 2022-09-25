@@ -1,11 +1,11 @@
 import React from "react";
-import PageContext from "../contexts/PageContext";
+import GlobalDataContext from "../contexts/GlobalDataContext";
 import { useParams } from 'react-router-dom';
 
 function BountyPage() {
     const { id } = useParams();
 
-    const { globalData } = React.useContext(PageContext);
+    const { globalData } = React.useContext(GlobalDataContext);
     return (
         <div>
             Details {id}
