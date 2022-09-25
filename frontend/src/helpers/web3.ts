@@ -157,3 +157,36 @@ export function callSubmit(
         }
     });
 }
+
+export function callAssignWinner(
+    address: string,
+    chainId: number,
+    taskId: BigNumber,
+    submissionId: BigNumber,
+    web3: any
+) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const contract = getDDALLEContract(web3, chainId);
+            const chain = getChainData(chainId).chain;
+            const gasPrice = chain === 'klaytn' ? await apiGetGasPriceKlaytn(chainId) : undefined;
+            const gas = chain === 'klaytn'
+                ? await contract.methods.assignWinner(taskId, submissionId).estimateGas({ from: address })
+                : undefined;
+            console.log("sending assignWinner transaction");
+            await contract.methods
+                .assignWinner(taskId, submissionId)
+                .send(
+                    { from: address, gas: gas, gasPrice: gasPrice },
+                    (err: any, data: any) => {
+                        if (err) {
+                            reject(err)
+                        }
+                        resolve(data)
+                    }
+                )
+        } catch (err) {
+            reject(err)
+        }
+    });
+}
