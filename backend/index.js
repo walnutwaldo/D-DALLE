@@ -1,22 +1,22 @@
-const {getSigner} = require("./web3");
-
 const ethers = require('ethers');
+const axios = require('axios');
 require('dotenv').config();
+const {getSigner} = require("./web3");
 
 let dalle;
 
-const DDALLE_DEPLOYMENT  = require("./abi/DDALLE_DEPLOYMENT.json");
+const DDALLE_DEPLOYMENT = require("./abi/DDALLE_DEPLOYMENT.json");
 
 
 const setup = async () => {
-    const { Dalle } = await import("dalle-node");
+    const {Dalle} = await import("dalle-node");
     dalle = new Dalle("sess-i8tCsrjc3qVcqoBGOLMV1q0wYYfNSw4NpRWIGHjL"); // Bearer Token TODO move to .env
 };
 
 const fetch = require("node-fetch-commonjs");
 const fs = require('fs').promises;
-const { initializeApp, cert } = require('firebase-admin/app');
-const { getStorage } = require('firebase-admin/storage');
+const {initializeApp, cert} = require('firebase-admin/app');
+const {getStorage} = require('firebase-admin/storage');
 const cors = require('cors');
 
 
@@ -96,7 +96,7 @@ const urls_from_prompt = async (prompt) => {
 const prompt = async (req, res) => {
     console.log("request:", req.body);
     const prompt = req.body.prompt;
-    const res_data = { success: true, urls: await urls_from_prompt(prompt) };
+    const res_data = {success: true, urls: await urls_from_prompt(prompt)};
     res.send(res_data);
 };
 
@@ -109,18 +109,37 @@ const submit = async (req, res) => {
     } = req.body;
 
     const address = DDALLE_DEPLOYMENT.address[chainId];
-    const signer = await getSigner(chainId);
-    console.log("Made signer");
-    const contract = new ethers.Contract(address, DDALLE_DEPLOYMENT.abi, signer);
-    console.log("Made contract");
+    if (!address) return res.status(500).send({success: false, error: "chainId not supported"});
 
-    const tx = await contract.submit(taskId, uri, prompt);
-    console.log("Made txn");
-    const receipt = await tx.wait();
-    req.send({
-        success: true,
-        receipt
+    const signer = await getSigner(chainId);
+    // console.log("Made signer");
+
+    const contract = new ethers.Contract(address, DDALLE_DEPLOYMENT.abi, signer);
+    // console.log("Made contract");
+
+    const url = signer.provider.connection.url;
+    const response = await axios.post(url, {
+        'jsonrpc': '2.0',
+        'id': 0,
+        'method': 'klay_gasPrice',
     })
+    const { gasPrice } = response.data;
+    const estimation = await contract.estimateGas.submit(taskId, uri, prompt);
+
+    try {
+        const txn = await contract.submit(taskId, uri, prompt, {
+            gasLimit: estimation,
+            gasPrice: gasPrice,
+        });
+        // console.log("Made txn");
+        res.send({
+            success: true,
+            txn
+        });
+    } catch (e) {
+        console.log("Error submitting", e);
+        return res.status(500).send({success: false, error: e});
+    }
 }
 
 setup().then(() => {
