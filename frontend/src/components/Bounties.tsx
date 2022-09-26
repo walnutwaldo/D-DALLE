@@ -3,12 +3,12 @@ import GlobalDataContext from '../contexts/GlobalDataContext';
 import Bounty from './Bounty';
 
 function Bounties() {
-    const {globalData} = React.useContext(GlobalDataContext);
+    const { globalData } = React.useContext(GlobalDataContext);
 
     return (
         <div>
             <div className={
-                "p-2 bg-slate-700 m-4 text-white rounded-lg"
+                "p-2 bg-slate-700 m-4 text-white rounded-lg hidden md:block"
             }>
                 <div className="flex flex-row gap-4">
                     <div className="w-64 text-center font-bold">
@@ -25,9 +25,9 @@ function Bounties() {
             {
                 globalData.bounties.map(bounty => (
                     <div key={bounty.id} className={
-                        "p-2 m-4"
+                        "md:p-2 md:m-4"
                     }>
-                        <Bounty data={bounty}/>
+                        <Bounty data={bounty} />
                     </div>
                 ))
             }

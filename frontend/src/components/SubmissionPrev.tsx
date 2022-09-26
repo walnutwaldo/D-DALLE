@@ -7,8 +7,8 @@ function SubmissionPrev({ submissions }: { submissions: SubmissionT[] }) {
     const submissionsToDisplay = submissions.slice(0, 4);
 
     return (
-        <div className="flex shrink overflow-hidden">
-            <div className="flex flex-row gap-2">
+        <div className="flex shrink overflow-scroll md:overflow-hidden max-h-64">
+            <div className="flex flex-row gap-2 ml-3 md:ml-0">
                 {
                     submissionsToDisplay.map((submission, idx) => (
                         <div key={idx}>

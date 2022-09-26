@@ -28,10 +28,10 @@ function WinnerSection(props: { submission: SubmissionT | null, bounty: BountyT,
 
     const titleStyle = "text-md font-bold mt-3";
     const valueStyle = "text-lg";
-    return <div className="flex flex-row h-[32rem] justify-center mt-20 mb-8">
+    return <div className="flex flex-col md:flex-row md:h-[32rem] justify-center mt-20 mb-8">
         <img src={submission.uri} alt="winning submission" />
         <div className="flex flex-col max-w-[32rem] pl-5">
-            <div className="text-3xl font-bold mt-2">
+            <div className="text-3xl font-bold mt-8 md:mt-2">
                 Selected Winner
             </div>
             <div className="flex flex-col justify-center flex-grow">
@@ -45,7 +45,7 @@ function WinnerSection(props: { submission: SubmissionT | null, bounty: BountyT,
                 <div className={titleStyle}>
                     Creator:
                 </div>
-                <div className={valueStyle + " font-mono"}>
+                <div className={valueStyle + " font-mono text-xs lg:text-lg"}>
                     {submission.owner}
                 </div>
 
