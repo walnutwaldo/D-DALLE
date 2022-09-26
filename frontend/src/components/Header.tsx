@@ -28,7 +28,7 @@ function Header() {
     return (
         <header className='text-white py-2 relative'>
             <div
-                className={"absolute top-0 bottom-0 -z-10 overflow-hidden overflow-hidden"}
+                className={"absolute top-0 bottom-0 left-0 right-0 -z-10 overflow-hidden overflow-hidden"}
             >
                 <img src="/banner.png" alt="" className={"object-cover min-h-full w-full"} style={{
                     transform: `translateY(${Math.max(0, scrollPosition/3)}px)`
