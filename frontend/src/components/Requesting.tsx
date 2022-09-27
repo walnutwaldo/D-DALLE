@@ -1,11 +1,11 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Web3Context from "../contexts/Web3Context";
-import {BigNumber, ethers} from "ethers";
-import {callMakeTask} from "../helpers/web3";
-import {getChainData} from "../helpers/utilities";
+import { BigNumber, ethers } from "ethers";
+import { callMakeTask } from "../helpers/web3";
+import { getChainData } from "../helpers/utilities";
 
 function Requesting() {
-    const {connected, web3, address, networkId, chainId} = useContext(Web3Context);
+    const { connected, web3, address, networkId, chainId } = useContext(Web3Context);
 
     const [priceValue, setPriceValue] = useState("0");
     const [description, setDescription] = useState("");
@@ -61,7 +61,7 @@ function Requesting() {
     const currencyTicker = chainData.native_currency.symbol;
 
     return connected ? (
-        <div className={"w-1/2 mx-auto flex flex-col gap-2"}>
+        <div className={"w-3/4 lg:w-1/2 mx-auto flex flex-col gap-2"}>
             <h3 className={"text-lg font-bold"}>Create an Art Bounty</h3>
             <div>
                 <label className={"font-semibold"}>Description</label> (min 10 chars)
@@ -90,33 +90,33 @@ function Requesting() {
                     }}
                 >
                     <input ref={priceRef}
-                           className={"w-full border border-gray-300 rounded-md p-2 outline-none border-none"}
-                           value={priceValue}
-                           onInput={(e) => {
-                               // Only allow numbers and decimals
-                               let value = e.currentTarget.value || "0";
-                               if (value.match(/^[0-9]*\.?[0-9]*$/)) {
-                                   while (value[0] === "0" && value.length > 1 && value[1] !== ".") {
-                                       value = value.substring(1);
-                                   }
-                                   if (value.includes(".")) {
-                                       const decimals = value.split(".")[1];
-                                       if (decimals.length > 18) {
-                                           value = value.substring(0, value.length - (decimals.length - 18));
-                                       }
-                                   }
-                                   setPriceValue(value || "0");
-                               }
-                           }}
-                           onBlur={() => {
-                               refreshEditingPrice();
-                               // Remove number after 18 decimals
-                               const weiValue = ethers.utils.parseEther(priceValue);
-                               // compare with weiBalance
-                               if (weiValue.gt(weiBalance)) {
-                                   setPriceValue(ethers.utils.formatEther(weiBalance));
-                               }
-                           }}
+                        className={"w-full border border-gray-300 rounded-md p-2 outline-none border-none"}
+                        value={priceValue}
+                        onInput={(e) => {
+                            // Only allow numbers and decimals
+                            let value = e.currentTarget.value || "0";
+                            if (value.match(/^[0-9]*\.?[0-9]*$/)) {
+                                while (value[0] === "0" && value.length > 1 && value[1] !== ".") {
+                                    value = value.substring(1);
+                                }
+                                if (value.includes(".")) {
+                                    const decimals = value.split(".")[1];
+                                    if (decimals.length > 18) {
+                                        value = value.substring(0, value.length - (decimals.length - 18));
+                                    }
+                                }
+                                setPriceValue(value || "0");
+                            }
+                        }}
+                        onBlur={() => {
+                            refreshEditingPrice();
+                            // Remove number after 18 decimals
+                            const weiValue = ethers.utils.parseEther(priceValue);
+                            // compare with weiBalance
+                            if (weiValue.gt(weiBalance)) {
+                                setPriceValue(ethers.utils.formatEther(weiBalance));
+                            }
+                        }}
                     />
                     <span className={"pr-2 text-gray-400"}>{currencyTicker}</span>
                 </span>
@@ -134,21 +134,21 @@ function Requesting() {
                     }}
                 >
                     <input ref={durationRef}
-                           className={"w-full border border-gray-300 rounded-md p-2 outline-none border-none"}
-                           value={duration}
-                           onInput={(e) => {
-                               // Only allow numbers and decimals
-                               let value = e.currentTarget.value || "0";
-                               if (value.match(/^[0-9]*$/)) {
-                                   while (value[0] === "0" && value.length > 1) {
-                                       value = value.substring(1);
-                                   }
-                                   setDuration(value || "0");
-                               }
-                           }}
-                           onBlur={() => {
-                               refreshEditingDuration();
-                           }}
+                        className={"w-full border border-gray-300 rounded-md p-2 outline-none border-none"}
+                        value={duration}
+                        onInput={(e) => {
+                            // Only allow numbers and decimals
+                            let value = e.currentTarget.value || "0";
+                            if (value.match(/^[0-9]*$/)) {
+                                while (value[0] === "0" && value.length > 1) {
+                                    value = value.substring(1);
+                                }
+                                setDuration(value || "0");
+                            }
+                        }}
+                        onBlur={() => {
+                            refreshEditingDuration();
+                        }}
                     />
                     <span className={"pr-2 text-gray-400"}>minutes</span>
                 </span>

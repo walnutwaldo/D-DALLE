@@ -1,22 +1,22 @@
-import React, {useContext} from "react";
-import {ethers} from "ethers";
+import React, { useContext } from "react";
+import { ethers } from "ethers";
 import LinearProgress from '@mui/material/LinearProgress';
-import {BACKEND_DOMAIN} from "../constants/constants";
-import {callSubmit} from "../helpers/web3";
-import {BountyT} from "../types.tsx/types";
+import { BACKEND_DOMAIN } from "../constants/constants";
+import { callSubmit } from "../helpers/web3";
+import { BountyT } from "../types.tsx/types";
 import Web3Context from "../contexts/Web3Context";
-import {getChainData} from "../helpers/utilities";
+import { getChainData } from "../helpers/utilities";
 import SubmissionContext from "../contexts/SubmissionContext";
 
 
-function SubmitSection({data}: { data: BountyT }) {
+function SubmitSection({ data }: { data: BountyT }) {
     const [prompt, setPrompt] = React.useState("");
     const [loading, setLoading] = React.useState(false);
     const [results, setResults] = React.useState([] as string[]);
     const [selImg, setSelImg] = React.useState(-1);
     const [proposing, setProposing] = React.useState(false);
-    const {connected, web3, address, networkId, chainId, connectWallet, provider} = useContext(Web3Context);
-    const {refresh: refreshSubmissions} = useContext(SubmissionContext);
+    const { connected, web3, address, networkId, chainId, connectWallet, provider } = useContext(Web3Context);
+    const { refresh: refreshSubmissions } = useContext(SubmissionContext);
 
     const showResults = loading || results.length > 0;
     const readyToSubmit = selImg !== -1;
@@ -29,7 +29,7 @@ function SubmitSection({data}: { data: BountyT }) {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({prompt: prompt}),
+            body: JSON.stringify({ prompt: prompt }),
         });
         const json = await res.json();
         console.log("Response: ", json);
@@ -102,7 +102,7 @@ function SubmitSection({data}: { data: BountyT }) {
         }
     }, [proposing, refreshSubmissions]);
 
-    const style_half = "w-1/2 mx-auto flex flex-col gap-2";
+    const style_half = "w-3/4 lg:w-1/2 mx-auto flex flex-col gap-2";
 
     return (
         <div className="submit-section mt-6 bg-gray-200 pb-5 rounded-lg overflow-hidden ">
@@ -132,7 +132,7 @@ function SubmitSection({data}: { data: BountyT }) {
                 </button>
                 <span className={"text-center text-slate-400"}>Generate Free Images With DALL-E 2</span>
                 {loading && <div className="pt-2 pb-4">
-                    <LinearProgress/>
+                    <LinearProgress />
                 </div>}
             </div>
             <div className={"flex flex-col px-12 lg:px-36 xl:px-12"}>
@@ -140,9 +140,9 @@ function SubmitSection({data}: { data: BountyT }) {
                 {showResults && results.length > 0 && <div className="flex flex-row flex-wrap justify-around">
                     {results.map((url, i) => (
                         <div key={i}
-                             className={"flex flex-col w-64 bg-gray-500 my-5 rounded-lg overflow-hidden " + (selImg === i ? "outline outline-8 outline-blue-500" : "")}
-                             onClick={() => setSelImg(i)}>
-                            <img src={url} alt="submission"/>
+                            className={"flex flex-col w-64 bg-gray-500 my-5 rounded-lg overflow-hidden " + (selImg === i ? "outline outline-8 outline-blue-500" : "")}
+                            onClick={() => setSelImg(i)}>
+                            <img src={url} alt="submission" />
                         </div>
                     ))}
                 </div>
