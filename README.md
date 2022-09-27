@@ -1,5 +1,5 @@
 # D-DALLE
-D-DALLE stands for Decentralized DALL-E. This app is deployed live at [ddalle.xyz](ddalle.xyz) on [Klaytn](https://klaytn.foundation/) mainnet.
+D-DALLE stands for Decentralized DALL-E. This app is deployed live at [ddalle.xyz](https://ddalle.xyz) on [Klaytn](https://klaytn.foundation/) mainnet.
 The AI used in this work is [DALLE-2](https://openai.com/dall-e-2/) created by [OpenAI](https://openai.com/).
 
 ## About
@@ -26,7 +26,7 @@ they get to review art submissions and award a bounty to one of the proposers.
 <img width="400" alt="Screen Shot 2022-09-26 at 12 31 17 PM" src="https://user-images.githubusercontent.com/22627487/192331745-3aa8930f-210d-45e1-8dba-4e2202d6a647.png">
 </p>
 **Proposers** generate art using our free DALL-E 2 interface which the sponsor gets to choose from. If a proposer's piece wins, they win the assigned bounty.
-Proposers also get NFTs of their artwork, which can be viewed in collections on OpenSea.
+Proposers also get NFTs of their artwork, which can be viewed in collections on <a href="https://opensea.io/">OpenSea</a>
 
 <p align="center">
 <img width="400" alt="Screen Shot 2022-09-26 at 12 25 27 PM" src="https://user-images.githubusercontent.com/22627487/192330426-adb4212d-1f85-4595-82bd-6a0fdf3fced0.png">
