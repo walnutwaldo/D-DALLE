@@ -1,28 +1,28 @@
 const ethers = require('ethers');
-const {BigNumber} = ethers;
+const { BigNumber } = ethers;
 const axios = require('axios');
 require('dotenv').config();
-const {getSigner} = require("./web3");
+const { getSigner } = require("./web3");
 
-let dalle;
 
 const DDALLE_DEPLOYMENT = require("./abi/DDALLE_DEPLOYMENT.json");
 
-
-const setup = async () => {
-    const {Dalle} = await import("dalle-node");
-    dalle = new Dalle("sess-i8tCsrjc3qVcqoBGOLMV1q0wYYfNSw4NpRWIGHjL"); // Bearer Token TODO move to .env
-};
-
 const fetch = require("node-fetch-commonjs");
 const fs = require('fs').promises;
-const {initializeApp, cert} = require('firebase-admin/app');
-const {getStorage} = require('firebase-admin/storage');
-const cors = require('cors');
-
-
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getStorage } = require('firebase-admin/storage');
 const express = require('express');
 const path = require('path');
+const cors = require('cors');
+const dotenv = require('dotenv');
+dotenv.config();
+
+let dalle;
+
+const setup = async () => {
+    const { Dalle } = await import("dalle-node");
+    dalle = new Dalle(process.env.OPENAI_BEARER_TOKEN); // Bearer Token from .env file
+};
 
 
 const PORT = process.env.PORT || 5000;
@@ -97,7 +97,7 @@ const urls_from_prompt = async (prompt) => {
 const prompt = async (req, res) => {
     console.log("request:", req.body);
     const prompt = req.body.prompt;
-    const res_data = {success: true, urls: await urls_from_prompt(prompt)};
+    const res_data = { success: true, urls: await urls_from_prompt(prompt) };
     res.send(res_data);
 };
 
@@ -110,7 +110,7 @@ const submit = async (req, res) => {
     } = req.body;
 
     const address = DDALLE_DEPLOYMENT.address[chainId];
-    if (!address) return res.status(500).send({success: false, error: "chainId not supported"});
+    if (!address) return res.status(500).send({ success: false, error: "chainId not supported" });
 
     const signer = await getSigner(chainId);
     // console.log("Made signer");
@@ -124,7 +124,7 @@ const submit = async (req, res) => {
         'id': 0,
         'method': 'klay_gasPrice',
     })
-    const {result: gasPrice} = response.data;
+    const { result: gasPrice } = response.data;
     const estimation = await contract.estimateGas.submit(uri, prompt);
 
     try {
@@ -138,28 +138,28 @@ const submit = async (req, res) => {
         });
     } catch (e) {
         console.log("Error submitting", e);
-        return res.status(500).send({success: false, error: e});
+        return res.status(500).send({ success: false, error: e });
     }
 }
 
 const submissions = async (req, res) => {
     const {
-        chainid : chainId,
+        chainid: chainId,
         submissionsContract,
         submissionId
     } = req.params;
 
     const address = DDALLE_DEPLOYMENT.address[chainId];
-    if (!address) return res.status(500).send({success: false, error: "chainId not supported"});
+    if (!address) return res.status(500).send({ success: false, error: "chainId not supported" });
 
     const signer = await getSigner(chainId);
     const contract = new ethers.Contract(submissionsContract, DDALLE_DEPLOYMENT.submissions_abi, signer);
 
     return res.status(200).send({
-        "description" : await contract.getPrompt(submissionId),
-        "external_url" : `https://ddalle.xyz/propose/${submissionsContract}`,
-        "image" : await contract.getImageURL(submissionId),
-        "name" : `${await contract.name()} #${submissionId}`
+        "description": await contract.getPrompt(submissionId),
+        "external_url": `https://ddalle.xyz/propose/${submissionsContract}`,
+        "image": await contract.getImageURL(submissionId),
+        "name": `${await contract.name()} #${submissionId}`
     })
 }
 
