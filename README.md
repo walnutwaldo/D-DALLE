@@ -25,7 +25,7 @@ they get to review art submissions and award a bounty to one of the proposers.
 <br/>
 <img width="400" alt="Screen Shot 2022-09-26 at 12 31 17 PM" src="https://user-images.githubusercontent.com/22627487/192331745-3aa8930f-210d-45e1-8dba-4e2202d6a647.png">
 </p>
-**Proposers** generate art using our free DALL-E 2 interface which the sponsor gets to choose from. If a proposer's piece wins, they win the assigned bounty.
+<b>Proposers</b> generate art using our free DALL-E 2 interface which the sponsor gets to choose from. If a proposer's piece wins, they win the assigned bounty.
 Proposers also get NFTs of their artwork, which can be viewed in collections on <a href="https://opensea.io/">OpenSea</a>
 
 <p align="center">
