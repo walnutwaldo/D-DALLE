@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { ethers } from "ethers";
 import LinearProgress from '@mui/material/LinearProgress';
 import { BACKEND_DOMAIN } from "../constants/constants";
@@ -7,6 +7,7 @@ import { BountyT } from "../types.tsx/types";
 import Web3Context from "../contexts/Web3Context";
 import { getChainData } from "../helpers/utilities";
 import SubmissionContext from "../contexts/SubmissionContext";
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 
 function SubmitSection({ data }: { data: BountyT }) {
@@ -17,27 +18,30 @@ function SubmitSection({ data }: { data: BountyT }) {
     const [proposing, setProposing] = React.useState(false);
     const { connected, web3, address, networkId, chainId, connectWallet, provider } = useContext(Web3Context);
     const { refresh: refreshSubmissions } = useContext(SubmissionContext);
+    const wsDomain = BACKEND_DOMAIN.replace(/^http/, 'ws');
+    const { sendMessage, lastMessage, readyState } = useWebSocket(wsDomain);
+
+    useEffect(() => {
+        if (lastMessage !== null) {
+            const resp = JSON.parse(lastMessage.data);
+            console.log("Response: ", resp);
+            if (resp.type === "result") {
+                if (!resp.success) alert("Error: " + resp);
+
+                setResults(resp.urls);
+                setLoading(false);
+            }
+        }
+    }, [lastMessage]);
 
     const showResults = loading || results.length > 0;
     const readyToSubmit = selImg !== -1;
 
     const sendRequest = async () => {
         setLoading(true);
-        console.log("BACKEND_DOMAIN", BACKEND_DOMAIN);
-        const res = await fetch(BACKEND_DOMAIN + "/prompt", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ prompt: prompt }),
-        });
-        const json = await res.json();
-        console.log("Response: ", json);
-        if (!json.success) {
-            alert("Error: " + json);
-        }
-        setResults(json.urls);
-        setLoading(false);
+        console.log("ws BACKEND_DOMAIN", wsDomain);
+        sendMessage(JSON.stringify({ prompt: prompt }));
+        // result is handled in useEffect [lastMessage]
     };
 
     const propose = async () => {
