@@ -128,7 +128,7 @@ function SubmitSection({ data }: { data: BountyT }) {
                     disabled={loading || prompt.length < 3}
                     onClick={() => sendRequest()}
                 >
-                    Generate Images (takes ~20sec)
+                    Generate Images (takes ~40sec)
                 </button>
                 <span className={"text-center text-slate-400"}>Generate Free Images With DALL-E 2</span>
                 {loading && <div className="pt-2 pb-4">

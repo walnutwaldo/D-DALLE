@@ -95,6 +95,7 @@ const urls_from_prompt = async (prompt) => {
 }
 
 const prompt = async (req, res) => {
+    req.setTimeout(120 * 1000); // long timeout as DALLE takes 40s+
     console.log("request:", req.body);
     const prompt = req.body.prompt;
     const res_data = { success: true, urls: await urls_from_prompt(prompt) };
