@@ -95,14 +95,6 @@ const urls_from_prompt = async (prompt) => {
     const urls = generations.map(g => `${DOMAIN}/${g.id}.jpg`);
     return urls;
 }
-// TODO deprecated
-const prompt = async (req, res) => {
-    req.setTimeout(120 * 1000); // long timeout as DALLE takes 40s+
-    console.log("request:", req.body);
-    const prompt = req.body.prompt;
-    const res_data = { success: true, urls: await urls_from_prompt(prompt) };
-    res.send(res_data);
-};
 
 const wsOnConnect = (ws) => {
     ws.on('message', async (data) => {
@@ -197,7 +189,6 @@ setup().then(() => {
         .use(cors({
             origin: '*'
         }))
-        .post('/prompt', prompt) // TODO deprecated
         .post('/submit', submit)
         .get('/submissions/:chainid/:submissionsContract/:submissionId', submissions)
         .listen(PORT, () => console.log(`Listening on ${PORT}`));
