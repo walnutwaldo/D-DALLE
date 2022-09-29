@@ -12,6 +12,7 @@
     "axios": "^0.27.2",
     "cors": "^2.8.5",
     "dalle-node": "^1.0.7",
+    "dotenv": "^16.0.2",
     "ethers": "^5.7.1",
     "express": "^4.18.1",
     "firebase-admin": "^11.0.1",
@@ -19,6 +20,6 @@
     "node-fetch-commonjs": "^3.2.4",
     "uuid": "^9.0.0",
     "uuid-v4": "^0.1.0",
-    "dotenv": "^16.0.2"
+    "ws": "^8.9.0"
   }
 }

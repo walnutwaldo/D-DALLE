@@ -12,10 +12,12 @@ const fs = require('fs').promises;
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getStorage } = require('firebase-admin/storage');
 const express = require('express');
+const { Server } = require('ws');
 const path = require('path');
 const cors = require('cors');
 const dotenv = require('dotenv');
 dotenv.config();
+
 
 let dalle;
 
@@ -94,12 +96,25 @@ const urls_from_prompt = async (prompt) => {
     return urls;
 }
 
-const prompt = async (req, res) => {
-    req.setTimeout(120 * 1000); // long timeout as DALLE takes 40s+
-    console.log("request:", req.body);
-    const prompt = req.body.prompt;
-    const res_data = { success: true, urls: await urls_from_prompt(prompt) };
-    res.send(res_data);
+const wsOnConnect = (ws) => {
+    ws.on('message', async (data) => {
+        console.log('received: %s', data);
+        const prompt = JSON.parse(data).prompt;
+        const res_data = { type: "result", success: true, urls: await urls_from_prompt(prompt) };
+        ws.send(JSON.stringify(res_data));
+    });
+
+    // keep heroku ws alive
+    var intervalId = setInterval(() => {
+        const data = { type: "keepalive" };
+        ws.send(JSON.stringify(data), () => { /* ignore errors */ });
+    }, 5000);
+
+    console.log('Client connected');
+    ws.on('close', () => {
+        console.log('Client disconnected');
+        clearInterval(intervalId);
+    });
 };
 
 const submit = async (req, res) => {
@@ -168,14 +183,16 @@ setup().then(() => {
     init();
     downloadImage("https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-q5lkwJFPwIcMvcWK0PRbh1U0.jpg", "public/test.jpg");
 
-    express()
+    const server = express()
         .use(express.static(path.join(__dirname, 'public')))
         .use(express.json())
         .use(cors({
             origin: '*'
         }))
-        .post('/prompt', prompt)
         .post('/submit', submit)
         .get('/submissions/:chainid/:submissionsContract/:submissionId', submissions)
-        .listen(PORT, () => console.log(`Listening on ${PORT}`))
+        .listen(PORT, () => console.log(`Listening on ${PORT}`));
+
+    const wss = new Server({ server });
+    wss.on('connection', wsOnConnect);
 });
