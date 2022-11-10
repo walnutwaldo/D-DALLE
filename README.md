@@ -1,6 +1,6 @@
 # D-DALLE
 D-DALLE stands for Decentralized DALL-E. This app is deployed live at [ddalle.xyz](https://ddalle.xyz) on [Klaytn](https://klaytn.foundation/) mainnet.
-The AI used in this work is [DALLE-2](https://openai.com/dall-e-2/) created by [OpenAI](https://openai.com/).
+The AI used in this work is [Stable Diffusion](https://huggingface.co/spaces/stabilityai/stable-diffusion), an open-source project created by [Stability AI](https://stability.ai/blog/stable-diffusion-announcement).
 
 ## About
 Do you ever need to quickly find an image for a presentation / website and end up finding nothing good? Wouldn’t it be great 
