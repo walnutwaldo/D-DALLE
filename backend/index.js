@@ -15,16 +15,19 @@ const express = require('express');
 const { Server } = require('ws');
 const path = require('path');
 const cors = require('cors');
+const { v4: uuidv4 } = require('uuid');
 const dotenv = require('dotenv');
 dotenv.config();
 
+const { Configuration, OpenAIApi } = require("openai");
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
 
-let dalle;
 
-const setup = async () => {
-    const { Dalle } = await import("dalle-node");
-    dalle = new Dalle(process.env.OPENAI_BEARER_TOKEN); // Bearer Token from .env file
-};
+
+const setup = async () => {};
 
 
 const PORT = process.env.PORT || 5000;
@@ -45,11 +48,10 @@ const bucket = getStorage().bucket();
 
 
 const init = async () => {
-
-    const creditsSummary = await dalle.getCredits();
-    const totalCreditsLeft = creditsSummary.aggregate_credits;
-    console.log("Total credits left:", totalCreditsLeft);
-    console.log('Free credits refresh on:', new Date(creditsSummary.next_grant_ts * 1000).toLocaleString());
+    // const creditsSummary = await dalle.getCredits();
+    // const totalCreditsLeft = creditsSummary.aggregate_credits;
+    // console.log("Total credits left:", totalCreditsLeft);
+    // console.log('Free credits refresh on:', new Date(creditsSummary.next_grant_ts * 1000).toLocaleString());
 };
 
 const downloadImage = async (url, path) => {
@@ -68,31 +70,25 @@ const downloadImage = async (url, path) => {
 }
 
 const urls_from_prompt = async (prompt) => {
-    const generations = (await dalle.generate(prompt)).data;
-    console.log("generations:", generations);
-    /*
-[
-  {
-    id: 'generation-sCnERSYDPP0Zu14fsdXEcKmL',
-    object: 'generation',
-    created: 1553332711,
-    generation_type: 'ImageGeneration',
-    generation: {
-      image_path: 'https://openailabsprodscus.blob.core.windows.net/private/user-hadpVzldsfs28CwvEZYMUT/generations/generation...'
-    },
-    task_id: 'task-nERkiKsdjVCSZ50yD69qewID',
-    prompt_id: 'prompt-2CtaLQsgUbJHHDoJQy9Lul3T',
-    is_public: false
-  },
-    */
+    //const generations = (await dalle.generate(prompt)).data;
+    //console.log("generations:", generations);
+    const response = await openai.createImage({
+        prompt: prompt,
+        n: 4,
+        size: "1024x1024",
+    });
+    console.log("response:", response.data.data);
+    //image_url = response.data.data[0].url;
     // download all images to local folder
-    await Promise.all(generations.map(generation => {
-        const url = generation.generation.image_path;
+    const ids = await Promise.all(response.data.data.map(generation => {
+        const url = generation.url;
+        const id = uuidv4();
         // download image from url
-        return downloadImage(url, "public/" + generation.id + ".jpg");
+        return downloadImage(url, "public/" + id + ".jpg").then(() => id);
     }));
+    console.log("ids:", ids);
     // return list of ddalle urls
-    const urls = generations.map(g => `${DOMAIN}/${g.id}.jpg`);
+    const urls = ids.map(id => `${DOMAIN}/${id}.jpg`);
     return urls;
 }
 
@@ -182,6 +178,7 @@ const submissions = async (req, res) => {
 setup().then(() => {
     init();
     downloadImage("https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-q5lkwJFPwIcMvcWK0PRbh1U0.jpg", "public/test.jpg");
+    //urls_from_prompt("A dog").then(console.log);
 
     const server = express()
         .use(express.static(path.join(__dirname, 'public')))
