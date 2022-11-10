@@ -19,14 +19,6 @@ const { v4: uuidv4 } = require('uuid');
 const dotenv = require('dotenv');
 dotenv.config();
 
-const { Configuration, OpenAIApi } = require("openai");
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(configuration);
-
-
-
 const setup = async () => {};
 
 
@@ -69,27 +61,63 @@ const downloadImage = async (url, path) => {
     console.log("uploaded to firebase: ", path);
 }
 
+const getUrlsStability = async (prompt) => {
+    console.log("generating images for prompt:", prompt);
+    const headers = {
+        Authorization: `Token ${process.env.REPLICATE_API_TOKEN}`,
+        "Content-Type": "application/json",
+    };
+    const response = await axios.post(
+        "https://api.replicate.com/v1/predictions",
+        {
+            version: "8abccf52e7cba9f6e82317253f4a3549082e966db5584e92c808ece132037776",
+            input: {
+                prompt,
+                num_inference_steps: 50,
+                num_outputs: 4,
+            },
+        },
+        {headers}
+    );
+    //console.log("response:", response.data);
+    const getUrl = response.data.urls.get;
+    // fetch getUrl
+    // poll until ready
+    let urls = [];
+
+    for(let i = 0; i < 100; i++) {
+        const response = await axios.get(getUrl, {headers});
+        console.log("status:", response.data.status);
+        //console.log("response:", response.data);
+        if (response.data.status === "succeeded") {
+            urls = response.data.output;
+            break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+    console.log("done:", urls);
+    return urls;
+};
+
 const urls_from_prompt = async (prompt) => {
     //const generations = (await dalle.generate(prompt)).data;
     //console.log("generations:", generations);
-    const response = await openai.createImage({
-        prompt: prompt,
-        n: 4,
-        size: "1024x1024",
-    });
-    console.log("response:", response.data.data);
-    //image_url = response.data.data[0].url;
-    // download all images to local folder
-    const ids = await Promise.all(response.data.data.map(generation => {
-        const url = generation.url;
-        const id = uuidv4();
-        // download image from url
-        return downloadImage(url, "public/" + id + ".jpg").then(() => id);
-    }));
-    console.log("ids:", ids);
-    // return list of ddalle urls
-    const urls = ids.map(id => `${DOMAIN}/${id}.jpg`);
-    return urls;
+    try {
+        const urlsStability = await getUrlsStability(prompt);
+        //image_url = response.data.data[0].url;
+        // download all images to local folder
+        const ids = await Promise.all(urlsStability.map(url => {
+            const id = uuidv4();
+            // download image from url
+            return downloadImage(url, "public/" + id + ".jpg").then(() => id);
+        }));
+        console.log("ids:", ids);
+        // return list of ddalle urls
+        const urls = ids.map(id => `${DOMAIN}/${id}.jpg`);
+        return urls;
+    } catch (e) {
+        console.log("Error generating images for prompt", e.response.data);
+    }
 }
 
 const wsOnConnect = (ws) => {
@@ -178,7 +206,7 @@ const submissions = async (req, res) => {
 setup().then(() => {
     init();
     downloadImage("https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-q5lkwJFPwIcMvcWK0PRbh1U0.jpg", "public/test.jpg");
-    //urls_from_prompt("A dog").then(console.log);
+    urls_from_prompt("A dog").then(console.log);
 
     const server = express()
         .use(express.static(path.join(__dirname, 'public')))
