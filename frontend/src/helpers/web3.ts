@@ -1,6 +1,5 @@
-import { KIP7_CONTRACT } from '../constants'
-import { apiGetGasPriceKlaytn, apiGetGasPrices, getChainData } from './utilities'
-import { BigNumber, ethers } from "ethers";
+import { apiGetGasPriceKlaytn, getChainData } from './utilities'
+import { BigNumber } from "ethers";
 
 export const DDALLE_DEPLOYMENT = require('../constants/DDALLE_DEPLOYMENT.json');
 
@@ -27,6 +26,43 @@ export function getSubmissionsContract(address: string, web3: any) {
     return contract;
 }
 
+// Wraps a read-only contract call (`.call()`) in a Promise.
+function callContractMethod(contract: any, method: string, args: any[] = []) {
+    return contract.methods[method](...args).call();
+}
+
+// Sends a state-changing transaction, estimating gas/gasPrice for Klaytn chains
+// the same way across every write call.
+function sendContractMethod(
+    contract: any,
+    method: string,
+    args: any[],
+    chainId: number,
+    txParams: { from: string; value?: BigNumber }
+): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const chain = getChainData(chainId).chain;
+            const gasPrice = chain === 'klaytn' ? await apiGetGasPriceKlaytn(chainId) : undefined;
+            const gas = chain === 'klaytn'
+                ? await contract.methods[method](...args).estimateGas(txParams)
+                : undefined;
+            console.log(`sending ${method} transaction`);
+            contract.methods[method](...args).send(
+                { ...txParams, gas, gasPrice },
+                (err: any, data: any) => {
+                    if (err) {
+                        reject(err)
+                    }
+                    resolve(data)
+                }
+            )
+        } catch (err) {
+            reject(err)
+        }
+    });
+}
+
 export function callMakeTask(
     address: string,
     chainId: number,
@@ -35,45 +71,20 @@ export function callMakeTask(
     price: BigNumber,
     web3: any
 ) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const contract = getDDALLEContract(web3, chainId);
-            const chain = getChainData(chainId).chain;
-            const gasPrice = chain === 'klaytn' ? await apiGetGasPriceKlaytn(chainId) : undefined;
-            const gas = chain === 'klaytn'
-                ? await contract.methods.makeTask(description, duration).estimateGas({ from: address, value: price })
-                : undefined;
-            console.log("sending makeTask transaction");
-            await contract.methods
-                .makeTask(description, duration)
-                .send(
-                    { from: address, gas: gas, gasPrice: gasPrice, value: price },
-                    (err: any, data: any) => {
-                        if (err) {
-                            reject(err)
-                        }
-                        resolve(data)
-                    }
-                )
-        } catch (err) {
-            reject(err)
-        }
-    });
+    return sendContractMethod(
+        getDDALLEContract(web3, chainId),
+        "makeTask",
+        [description, duration],
+        chainId,
+        { from: address, value: price }
+    );
 }
 
 export function callNumTasks(
     web3: any,
     chainId: number,
 ) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const contract = getDDALLEContract(web3, chainId);
-            const tasks = await contract.methods.numTasks().call();
-            resolve(tasks);
-        } catch (err) {
-            reject(err)
-        }
-    });
+    return callContractMethod(getDDALLEContract(web3, chainId), "numTasks");
 }
 
 export function callGetTasks(
@@ -81,30 +92,14 @@ export function callGetTasks(
     web3: any,
     chainId: number,
 ) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const contract = getDDALLEContract(web3, chainId);
-            const tasks = await contract.methods.getTasks(pageNumber).call();
-            resolve(tasks);
-        } catch (err) {
-            reject(err)
-        }
-    });
+    return callContractMethod(getDDALLEContract(web3, chainId), "getTasks", [pageNumber]);
 }
 
 export function callNumSubmissions(
     submissionsContract: string,
     web3: any
 ) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const contract = getSubmissionsContract(submissionsContract, web3);
-            const tasks = await contract.methods.numSubmissions().call();
-            resolve(tasks);
-        } catch (err) {
-            reject(err)
-        }
-    });
+    return callContractMethod(getSubmissionsContract(submissionsContract, web3), "numSubmissions");
 }
 
 export function callGetSubmissions(
@@ -112,15 +107,7 @@ export function callGetSubmissions(
     pageNumber: number,
     web3: any
 ) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const contract = getSubmissionsContract(submissionsContract, web3);
-            const submissions = await contract.methods.getSubmissions(pageNumber).call();
-            resolve(submissions);
-        } catch (err) {
-            reject(err)
-        }
-    });
+    return callContractMethod(getSubmissionsContract(submissionsContract, web3), "getSubmissions", [pageNumber]);
 }
 
 
@@ -132,30 +119,13 @@ export function callSubmit(
     prompt: string,
     web3: any
 ) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const contract = getSubmissionsContract(submissionsContract, web3);
-            const chain = getChainData(chainId).chain;
-            const gasPrice = chain === 'klaytn' ? await apiGetGasPriceKlaytn(chainId) : undefined;
-            const gas = chain === 'klaytn'
-                ? await contract.methods.submit(uri, prompt).estimateGas({ from: address })
-                : undefined;
-            console.log("sending submit transaction");
-            await contract.methods
-                .submit(uri, prompt)
-                .send(
-                    { from: address, gas: gas, gasPrice: gasPrice },
-                    (err: any, data: any) => {
-                        if (err) {
-                            reject(err)
-                        }
-                        resolve(data)
-                    }
-                )
-        } catch (err) {
-            reject(err)
-        }
-    });
+    return sendContractMethod(
+        getSubmissionsContract(submissionsContract, web3),
+        "submit",
+        [uri, prompt],
+        chainId,
+        { from: address }
+    );
 }
 
 export function callAssignWinner(
@@ -165,28 +135,11 @@ export function callAssignWinner(
     submissionId: BigNumber,
     web3: any
 ) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const contract = getDDALLEContract(web3, chainId);
-            const chain = getChainData(chainId).chain;
-            const gasPrice = chain === 'klaytn' ? await apiGetGasPriceKlaytn(chainId) : undefined;
-            const gas = chain === 'klaytn'
-                ? await contract.methods.assignWinner(taskId, submissionId).estimateGas({ from: address })
-                : undefined;
-            console.log("sending assignWinner transaction");
-            await contract.methods
-                .assignWinner(taskId, submissionId)
-                .send(
-                    { from: address, gas: gas, gasPrice: gasPrice },
-                    (err: any, data: any) => {
-                        if (err) {
-                            reject(err)
-                        }
-                        resolve(data)
-                    }
-                )
-        } catch (err) {
-            reject(err)
-        }
-    });
+    return sendContractMethod(
+        getDDALLEContract(web3, chainId),
+        "assignWinner",
+        [taskId, submissionId],
+        chainId,
+        { from: address }
+    );
 }

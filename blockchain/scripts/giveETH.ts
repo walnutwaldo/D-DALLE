@@ -1,5 +1,5 @@
 import {ethers} from "hardhat";
-import fs from 'fs';
+import {runMain} from "./utils";
 
 const RECEIVER = "0xd84365dAd6e6dB6fa2d431992acB1e050789bE69";
 
@@ -19,9 +19,4 @@ async function main() {
     console.log("Balance:", ethers.utils.formatEther(balance));
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-});
+runMain(main);

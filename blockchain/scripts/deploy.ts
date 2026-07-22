@@ -1,15 +1,12 @@
 import {ethers} from "hardhat";
 import fs from 'fs';
+import {loadArtifactAbi, runMain, saveDeployment} from "./utils";
 
 const DDALLE_ARTIFACT_PATH = "./artifacts/contracts/DDALLE.Sol/DDALLE.json";
 const DDALLE_SUBMISSIONS_ARTIFACT_PATH = "./artifacts/contracts/DDALLESubmissions.Sol/DDALLESubmissions.json";
 
-const DDALLE_ABI = JSON.parse(
-    fs.readFileSync(DDALLE_ARTIFACT_PATH, "utf8")
-)["abi"];
-const DDALLE_SUBMISSIONS_ABI = JSON.parse(
-    fs.readFileSync(DDALLE_SUBMISSIONS_ARTIFACT_PATH, "utf8")
-)["abi"];
+const DDALLE_ABI = loadArtifactAbi(DDALLE_ARTIFACT_PATH);
+const DDALLE_SUBMISSIONS_ABI = loadArtifactAbi(DDALLE_SUBMISSIONS_ARTIFACT_PATH);
 
 const FRONTEND_DEPLOYMENT_INFO = '../frontend/src/constants/DDALLE_DEPLOYMENT.json';
 const BACKEND_DEPLOYMENT_INFO = '../backend/abi/DDALLE_DEPLOYMENT.json';
@@ -30,9 +27,9 @@ async function main() {
     console.log("Owner:", await contract.owner());
 
     // Update deployment.json to change address to deployed contract address
-    fs.writeFileSync('deployment.json', JSON.stringify({
+    saveDeployment({
         address: address,
-    }, null, 2));
+    });
 
     deployment.abi = DDALLE_ABI;
     deployment.submissions_abi = DDALLE_SUBMISSIONS_ABI;
@@ -43,9 +40,4 @@ async function main() {
     fs.writeFileSync(BACKEND_DEPLOYMENT_INFO, deploymentString);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-});
+runMain(main);
