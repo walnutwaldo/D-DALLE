@@ -21,8 +21,9 @@ function WinnerSection(props: { submission: SubmissionT | null, bounty: BountyT,
         ).then((res) => {
             console.log("Result: ", res);
             chooseWinner();
-        }).catch().then(() => {
-
+        }).catch((e) => {
+            console.error("Error assigning winner", e);
+            alert("Error selecting winner: " + (e?.message || e));
         });
     };
 

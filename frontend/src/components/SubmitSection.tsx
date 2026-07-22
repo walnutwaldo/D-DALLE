@@ -23,10 +23,20 @@ function SubmitSection({ data }: { data: BountyT }) {
 
     useEffect(() => {
         if (lastMessage !== null) {
-            const resp = JSON.parse(lastMessage.data);
+            let resp;
+            try {
+                resp = JSON.parse(lastMessage.data);
+            } catch (e) {
+                console.error("Failed to parse websocket message", e);
+                return;
+            }
             console.log("Response: ", resp);
             if (resp.type === "result") {
-                if (!resp.success) alert("Error: " + resp);
+                if (!resp.success) {
+                    alert("Error: " + (resp.error || "Failed to generate images"));
+                    setLoading(false);
+                    return;
+                }
 
                 setResults(resp.urls);
                 setLoading(false);
@@ -65,6 +75,8 @@ function SubmitSection({ data }: { data: BountyT }) {
                 const receipt = await txn.wait();
                 console.log("Receipt: ", receipt);
             }).catch((e) => {
+                console.error("Error proposing submission", e);
+                alert("Error proposing submission: " + (e?.message || e));
             }).then(() => {
                 setProposing(false);
             });
@@ -93,6 +105,8 @@ function SubmitSection({ data }: { data: BountyT }) {
                     alert("Error: " + res.error);
                 }
             }).catch((e) => {
+                console.error("Error proposing submission", e);
+                alert("Error proposing submission: " + (e?.message || e));
             }).then(() => {
                 setProposing(false);
             });

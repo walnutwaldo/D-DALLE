@@ -102,30 +102,35 @@ const getUrlsStability = async (prompt) => {
 const urls_from_prompt = async (prompt) => {
     //const generations = (await dalle.generate(prompt)).data;
     //console.log("generations:", generations);
-    try {
-        const urlsStability = await getUrlsStability(prompt);
-        //image_url = response.data.data[0].url;
-        // download all images to local folder
-        const ids = await Promise.all(urlsStability.map(url => {
-            const id = uuidv4();
-            // download image from url
-            return downloadImage(url, "public/" + id + ".jpg").then(() => id);
-        }));
-        console.log("ids:", ids);
-        // return list of ddalle urls
-        const urls = ids.map(id => `${DOMAIN}/${id}.jpg`);
-        return urls;
-    } catch (e) {
-        console.log("Error generating images for prompt", e.response.data);
-    }
+    const urlsStability = await getUrlsStability(prompt);
+    //image_url = response.data.data[0].url;
+    // download all images to local folder
+    const ids = await Promise.all(urlsStability.map(url => {
+        const id = uuidv4();
+        // download image from url
+        return downloadImage(url, "public/" + id + ".jpg").then(() => id);
+    }));
+    console.log("ids:", ids);
+    // return list of ddalle urls
+    const urls = ids.map(id => `${DOMAIN}/${id}.jpg`);
+    return urls;
 }
 
 const wsOnConnect = (ws) => {
     ws.on('message', async (data) => {
         console.log('received: %s', data);
-        const prompt = JSON.parse(data).prompt;
-        const res_data = { type: "result", success: true, urls: await urls_from_prompt(prompt) };
-        ws.send(JSON.stringify(res_data));
+        try {
+            const prompt = JSON.parse(data).prompt;
+            const urls = await urls_from_prompt(prompt);
+            ws.send(JSON.stringify({ type: "result", success: true, urls }));
+        } catch (e) {
+            console.error("Error handling prompt message", e);
+            ws.send(JSON.stringify({
+                type: "result",
+                success: false,
+                error: "Failed to generate images"
+            }));
+        }
     });
 
     // keep heroku ws alive
@@ -152,22 +157,19 @@ const submit = async (req, res) => {
     const address = DDALLE_DEPLOYMENT.address[chainId];
     if (!address) return res.status(500).send({ success: false, error: "chainId not supported" });
 
-    const signer = await getSigner(chainId);
-    // console.log("Made signer");
-
-    const contract = new ethers.Contract(submissionsContract, DDALLE_DEPLOYMENT.submissions_abi, signer);
-    // console.log("Made contract");
-
-    const url = signer.provider.connection.url;
-    const response = await axios.post(url, {
-        'jsonrpc': '2.0',
-        'id': 0,
-        'method': 'klay_gasPrice',
-    })
-    const { result: gasPrice } = response.data;
-    const estimation = await contract.estimateGas.submit(uri, prompt);
-
     try {
+        const signer = await getSigner(chainId);
+        const contract = new ethers.Contract(submissionsContract, DDALLE_DEPLOYMENT.submissions_abi, signer);
+
+        const url = signer.provider.connection.url;
+        const response = await axios.post(url, {
+            'jsonrpc': '2.0',
+            'id': 0,
+            'method': 'klay_gasPrice',
+        })
+        const { result: gasPrice } = response.data;
+        const estimation = await contract.estimateGas.submit(uri, prompt);
+
         const txn = await contract.submit(uri, prompt, {
             gasLimit: estimation,
             gasPrice: gasPrice,
@@ -177,8 +179,8 @@ const submit = async (req, res) => {
             txn
         });
     } catch (e) {
-        console.log("Error submitting", e);
-        return res.status(500).send({ success: false, error: e });
+        console.error("Error submitting", e);
+        return res.status(500).send({ success: false, error: e.message || "Failed to submit" });
     }
 }
 
@@ -192,21 +194,29 @@ const submissions = async (req, res) => {
     const address = DDALLE_DEPLOYMENT.address[chainId];
     if (!address) return res.status(500).send({ success: false, error: "chainId not supported" });
 
-    const signer = await getSigner(chainId);
-    const contract = new ethers.Contract(submissionsContract, DDALLE_DEPLOYMENT.submissions_abi, signer);
+    try {
+        const signer = await getSigner(chainId);
+        const contract = new ethers.Contract(submissionsContract, DDALLE_DEPLOYMENT.submissions_abi, signer);
 
-    return res.status(200).send({
-        "description": await contract.getPrompt(submissionId),
-        "external_url": `https://ddalle.xyz/propose/${submissionsContract}`,
-        "image": await contract.getImageURL(submissionId),
-        "name": `${await contract.name()} #${submissionId}`
-    })
+        return res.status(200).send({
+            "description": await contract.getPrompt(submissionId),
+            "external_url": `https://ddalle.xyz/propose/${submissionsContract}`,
+            "image": await contract.getImageURL(submissionId),
+            "name": `${await contract.name()} #${submissionId}`
+        })
+    } catch (e) {
+        console.error("Error fetching submission metadata", e);
+        return res.status(500).send({ success: false, error: e.message || "Failed to fetch submission" });
+    }
 }
 
 setup().then(() => {
     init();
-    downloadImage("https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-q5lkwJFPwIcMvcWK0PRbh1U0.jpg", "public/test.jpg");
-    urls_from_prompt("A dog").then(console.log);
+    downloadImage("https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-q5lkwJFPwIcMvcWK0PRbh1U0.jpg", "public/test.jpg")
+        .catch((e) => console.error("Error downloading test image", e));
+    urls_from_prompt("A dog")
+        .then(console.log)
+        .catch((e) => console.error("Error generating startup images", e));
 
     const server = express()
         .use(express.static(path.join(__dirname, 'public')))
