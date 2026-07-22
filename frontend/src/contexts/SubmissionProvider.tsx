@@ -32,7 +32,10 @@ function SubmissionProvider({ children, submissionsContract }: { children: any, 
                             }
                         })
                     )
-                );
+                )
+                .catch((err: any) => {
+                    console.error("Error fetching submissions", err);
+                });
         }
         if (chainId) {
             if (web3 && connected) {

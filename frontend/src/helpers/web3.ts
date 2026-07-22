@@ -51,8 +51,9 @@ export function callMakeTask(
                     (err: any, data: any) => {
                         if (err) {
                             reject(err)
+                        } else {
+                            resolve(data)
                         }
-                        resolve(data)
                     }
                 )
         } catch (err) {
@@ -148,8 +149,9 @@ export function callSubmit(
                     (err: any, data: any) => {
                         if (err) {
                             reject(err)
+                        } else {
+                            resolve(data)
                         }
-                        resolve(data)
                     }
                 )
         } catch (err) {
@@ -181,8 +183,9 @@ export function callAssignWinner(
                     (err: any, data: any) => {
                         if (err) {
                             reject(err)
+                        } else {
+                            resolve(data)
                         }
-                        resolve(data)
                     }
                 )
         } catch (err) {

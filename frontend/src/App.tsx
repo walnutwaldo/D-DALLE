@@ -172,11 +172,11 @@ function Web3ContextProvider(props: any) {
                                 ],
                             });
                         } catch (addError) {
-                            // handle "add" error
+                            console.error("Error adding chain to wallet", addError);
                         }
                     }
                 }
-                connectWallet().then();
+                connectWallet().catch((err) => console.error("Error reconnecting wallet", err));
                 switchingChains = false;
             }
         },
@@ -185,7 +185,7 @@ function Web3ContextProvider(props: any) {
 
     useEffect(() => {
         if (web3Modal.cachedProvider) {
-            connectWallet().then();
+            connectWallet().catch((err) => console.error("Error connecting wallet", err));
         }
     }, []);
 
@@ -255,24 +255,27 @@ function GlobalDataProvider(props: any) {
                 if (currBountyCnt === bountyRefreshCnt) {
                     setBountyData(newBountyData);
                 }
+            })
+            .catch((err: any) => {
+                console.error("Error refreshing bounty data", err);
             });
     }
 
     async function refreshBountyData() {
         if (chainId) {
             if (connected && web3) {
-                refreshBountyDataWithWeb3(web3, chainId).then();
+                await refreshBountyDataWithWeb3(web3, chainId);
             } else {
                 const web3 = new Web3(
                     getChainData(chainId).rpc_url
                 );
-                refreshBountyDataWithWeb3(web3, chainId).then()
+                await refreshBountyDataWithWeb3(web3, chainId);
             }
         }
     }
 
     useEffect(() => {
-        refreshBountyData().then();
+        refreshBountyData().catch((err) => console.error("Error refreshing bounty data", err));
     }, [web3, provider, chainId, connected, networkId])
 
     return (

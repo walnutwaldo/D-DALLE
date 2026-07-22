@@ -36,6 +36,9 @@ function Requesting() {
             web3
         ).then((res) => {
             console.log("Result: ", res);
+        }).catch((e) => {
+            console.error("Error creating bounty", e);
+            alert("Error creating bounty: " + (e?.message || e));
         });
         setDescription("");
         setPriceValue("0");
@@ -47,6 +50,8 @@ function Requesting() {
             web3.eth.getBalance(address).then((weiBalance) => {
                 console.log("weiBalance", weiBalance);
                 setWeiBalance(weiBalance);
+            }).catch((e: any) => {
+                console.error("Error fetching balance", e);
             });
         }
     }, [web3, address, connected, chainId, networkId]);
