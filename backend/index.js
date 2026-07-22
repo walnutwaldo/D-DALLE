@@ -26,6 +26,24 @@ const PORT = process.env.PORT || 5000;
 const DOMAIN = "https://storage.googleapis.com/decentralized-dall-e.appspot.com";
 const FIREBASE_BUCKET = "decentralized-dall-e.appspot.com";
 
+// Comma-separated list of origins allowed to call the backend. Falls back to
+// the production frontend when unset. Use "*" only for local development.
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "https://ddalle.xyz")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+
+// Optional shared secret. When set, /submit and websocket clients must present
+// it (via the `x-api-key` header or `apiKey` message field). When unset the
+// endpoints stay open for backwards compatibility, but a warning is logged.
+const BACKEND_API_KEY = process.env.BACKEND_API_KEY;
+if (!BACKEND_API_KEY) {
+    console.warn("WARNING: BACKEND_API_KEY is not set - /submit and image generation are unauthenticated.");
+}
+
+const MAX_PROMPT_LENGTH = 1000;
+const MAX_URI_LENGTH = 2048;
+
 // read firebase file from config var (for heroku)
 const fb_key_content = (process.env.firebase_key
     ? JSON.parse(process.env.firebase_key)
@@ -123,7 +141,25 @@ const urls_from_prompt = async (prompt) => {
 const wsOnConnect = (ws) => {
     ws.on('message', async (data) => {
         console.log('received: %s', data);
-        const prompt = JSON.parse(data).prompt;
+        let parsed;
+        try {
+            parsed = JSON.parse(data);
+        } catch (e) {
+            ws.send(JSON.stringify({ type: "result", success: false, error: "invalid JSON" }));
+            return;
+        }
+
+        if (!isAuthorized(parsed.apiKey)) {
+            ws.send(JSON.stringify({ type: "result", success: false, error: "unauthorized" }));
+            return;
+        }
+
+        const prompt = parsed.prompt;
+        if (typeof prompt !== "string" || prompt.length === 0 || prompt.length > MAX_PROMPT_LENGTH) {
+            ws.send(JSON.stringify({ type: "result", success: false, error: "invalid prompt" }));
+            return;
+        }
+
         const res_data = { type: "result", success: true, urls: await urls_from_prompt(prompt) };
         ws.send(JSON.stringify(res_data));
     });
@@ -178,7 +214,7 @@ const submit = async (req, res) => {
         });
     } catch (e) {
         console.log("Error submitting", e);
-        return res.status(500).send({ success: false, error: e });
+        return res.status(500).send({ success: false, error: "submission failed" });
     }
 }
 
@@ -205,14 +241,12 @@ const submissions = async (req, res) => {
 
 setup().then(() => {
     init();
-    downloadImage("https://storage.googleapis.com/decentralized-dall-e.appspot.com/generation-q5lkwJFPwIcMvcWK0PRbh1U0.jpg", "public/test.jpg");
-    urls_from_prompt("A dog").then(console.log);
 
     const server = express()
         .use(express.static(path.join(__dirname, 'public')))
-        .use(express.json())
+        .use(express.json({ limit: '100kb' }))
         .use(cors({
-            origin: '*'
+            origin: ALLOWED_ORIGINS.includes('*') ? '*' : ALLOWED_ORIGINS
         }))
         .post('/submit', submit)
         .get('/submissions/:chainid/:submissionsContract/:submissionId', submissions)
