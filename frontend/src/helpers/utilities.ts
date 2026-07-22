@@ -1,11 +1,13 @@
 import * as ethUtil from "ethereumjs-util";
 import supportedChains from "./chains";
 import axios, {AxiosInstance} from 'axios'
-import BigNumber from "bignumber.js";
-import {convertAmountToRawNumber} from "./bignumber";
+import {convertAmountToRawNumber, convertNumberToString, convertStringToHex} from "./bignumber";
 
 import dotenv from "dotenv";
 dotenv.config();
+
+// Re-exported from ./bignumber so existing `helpers/utilities` importers keep working.
+export {convertNumberToString, convertStringToHex};
 
 const api = axios.create({
     baseURL: 'https://ethereum-api.xyz',
@@ -99,10 +101,6 @@ export function sanitizeHex(hex: string) {
     return "0x" + hex;
 }
 
-export function convertStringToHex(value: any) {
-    return new BigNumber(`${value}`).toString(16)
-}
-
 export function getChainData(chainId: number) {
     const chainData = supportedChains.filter(
         (chain) => chain.chain_id === chainId
@@ -160,10 +158,6 @@ export function recoverPublicKey(sig: string, hash: string) {
     );
     const signer = ethUtil.bufferToHex(ethUtil.publicToAddress(result));
     return signer;
-}
-
-export function convertNumberToString(value: any) {
-    return new BigNumber(`${value}`).toString()
 }
 
 export async function formatTestTransaction(address: string, chainId: number) {

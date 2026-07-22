@@ -1,9 +1,8 @@
-import {ethers} from "hardhat";
 import {BigNumber} from "ethers";
-import fs from "fs";
+import {loadDeployment, runMain} from "./utils";
 
 // Load contract address from deployment.json
-const deployment = JSON.parse(fs.readFileSync('deployment.json', 'utf8'));
+const deployment = loadDeployment();
 const CONTRACT_ADDRESS = deployment.address;
 const TASK_ID = BigNumber.from(deployment.taskId);
 
@@ -48,9 +47,4 @@ async function main() {
     // });
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-});
+runMain(main);

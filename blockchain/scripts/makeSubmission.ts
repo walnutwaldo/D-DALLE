@@ -1,16 +1,13 @@
 import {ethers} from "hardhat";
 import {BigNumber} from "ethers";
-import fs from "fs";
+import {attachDDALLE, findEvent, loadArtifactAbi, loadDeployment, runMain} from "./utils";
 
 // Load contract address from deployment.json
-const deployment = JSON.parse(fs.readFileSync('deployment.json', 'utf8'));
-const CONTRACT_ADDRESS = deployment.address;
+const CONTRACT_ADDRESS = loadDeployment().address;
 const TASK_ID = BigNumber.from("0");
 
 const DDALLE_SUBMISSIONS_ARTIFACT_PATH = "./artifacts/contracts/DDALLESubmissions.Sol/DDALLESubmissions.json";
-const DDALLE_SUBMISSIONS_ABI = JSON.parse(
-    fs.readFileSync(DDALLE_SUBMISSIONS_ARTIFACT_PATH, "utf8")
-)["abi"];
+const DDALLE_SUBMISSIONS_ABI = loadArtifactAbi(DDALLE_SUBMISSIONS_ARTIFACT_PATH);
 
 const URIs = [
     "https://openailabsprodscus.blob.core.windows.net/private/user-DTn6mhCmgGrt19ZLD5jBXc4L/generations/generation-EAOPCXlWfbHbAHvzDCheYl5N/image.webp?st=2022-09-25T00%3A14%3A40Z&se=2022-09-25T02%3A12%3A40Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/webp&skoid=15f0b47b-a152-4599-9e98-9cb4a58269f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2022-09-24T20%3A19%3A41Z&ske=2022-10-01T20%3A19%3A41Z&sks=b&skv=2021-08-06&sig=FuXZaPbUkGGYmT9AgXtUB5IzP5vjNmwGn2OQLGtrs0A%3D",
@@ -25,8 +22,7 @@ async function main() {
     const signers = await ethers.getSigners();
     const signer = signers[Math.min(signers.length - 1, 3)];
 
-    const factory = await ethers.getContractFactory("DDALLE");
-    const contract = factory.attach(CONTRACT_ADDRESS);
+    const contract = await attachDDALLE(CONTRACT_ADDRESS);
 
     const task = await contract.getTask(TASK_ID);
     const submissionsContract = new ethers.Contract(
@@ -46,7 +42,7 @@ async function main() {
         const receipt = await txn.wait();
         console.log("DONE");
 
-        const event = receipt.events?.filter((e: any) => e.event === "Transfer")[0];
+        const event = findEvent(receipt, "Transfer");
         const submissionId = event!.args!.tokenId;
         console.log("Create submission ID:", submissionId.toString());
     }
@@ -59,9 +55,4 @@ async function main() {
     })));
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-});
+runMain(main);
